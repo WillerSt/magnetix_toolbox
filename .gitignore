@@ -1,0 +1,33 @@
+# build and install directories
+build/
+install/
+
+# unwanted file types
+**.h5
+**.xdmf
+
+**.bp
+
+*.vtu
+*.pvtu
+*.pvd
+
+*.xml
+*.pyc
+*.msh
+
+# results and outputs
+**/output
+**/results
+
+# editor files
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+**/.vscode
+
+# example executables
+**/magnetostatic_2D_exec
+
+# necessary input files
+!examples/magnetostatic_2D/TEAM_Problem_32/input/sources/TEAM_Problem_32_case_3.xml
+!examples/magnetostatic_2D/TEAM_Problem_32/input/material/TeamProblem32_60deg_iso_HGM.xml
