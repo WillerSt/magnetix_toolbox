@@ -1,5 +1,5 @@
 # magnetix_toolbox
-Some calculations of magnetostatic fields, based on FEniCSx
+Some calculations of magnetostatic fields based on FEniCSx
 
 The code was originally written to test hysteresis models and was afterwards enhanced to be of more general use.
 In its current state the library only supports 2D calculations based on the z-component of the magnetic vector potential. 
@@ -80,7 +80,7 @@ The created library should now be available in the *install* directory located i
 # Running the examples
 ## Preparation
 -    Append *install/dpc_hysteresis-0.1*  and the *install/fenicsx_magnetics_toolbox-0.9* directories (default installation paths) to your *CMAKE_PREFIX_PATH*
--    Append *install/fenicsx_magnetics_toolbox-0.9/python/* to your *PYTHON_PATH*
+-    Append *install/fenicsx_magnetics_toolbox-0.9/python/* to your *PYTHONPATH*
 
 
 ## TEAM Problem 32
@@ -96,7 +96,7 @@ The created library should now be available in the *install* directory located i
 2. create input xml for example
 
         cd TEAM_Problem_32
-        python TeamProblem32_setup.py
+        python3 TeamProblem32_setup.py
         cd ..
 
 3. run example (if possible in parallel)
