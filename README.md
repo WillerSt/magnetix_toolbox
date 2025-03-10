@@ -96,15 +96,17 @@ The created library should now be available in the *install* directory located i
 2. create input xml for example
 
         cd TEAM_Problem_32
-        python3 TeamProblem32_setup.py
+        python TeamProblem32_setup.py
         cd ..
 
 3. run example (if possible in parallel)
 
        mpirun -np 4 ./magnetostatic_2D_exec --scen TEAM_Problem_32/TeamProblem32_case3.xml
 
-All results are found in the *TEAM_Problem_32/results/* directory. The fields can be viewed e.g. with Paraview.
-An automated evaluation of the results is currently being worked on.
+
+4. All results are found in the *TEAM_Problem_32/results/* directory. The fields can be viewed e.g. with Paraview.
+    Evaluate flux density at the query points using
+    python 
 
 # Third party contributions
 ## tinyXML2

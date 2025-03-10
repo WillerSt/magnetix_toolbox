@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 import gmsh
 import fmt_scen as scen  
 from msh_to_xdmf import msh_to_xdmf 
@@ -241,7 +244,7 @@ def create_team_problem_32_msh(modelName: str, sTags, lTags, meshFactor):
 scenName = "TeamProblem32_case3"
 meshName = "Team32_half"
 
-materialLib = "input/material"
+materialLib = "material_data/xml"
 inputDir = scen.create_directory("input")
 materialDir = scen.create_directory(inputDir + "/"+ "material")
 sourcesDir = scen.create_directory(inputDir + "/"+ "sources")
@@ -260,10 +263,18 @@ neuBoundTag = 1
 
 coarseFactor = 2
 
-materialName = "TeamProblem32_60deg_iso_HGM"
-timeSeriesXML = "TEAM_Problem_32_case_3.xml"
+materialName = "TEAM32_cont_60deg"
+timeSeriesXML = "TEAM_Problem_32_case_3_two_periods.xml"
 
-Bsat = 1.42126
+Bsat = 1.412229
+
+## define points for post processing
+xMid = 0.08725
+evalPoints = []
+evalPoints.append([xMid, 0.0615])
+evalPoints.append([xMid, 0.0640])
+evalPoints.append([xMid, 0.0695])
+evalPoints.append([xMid, 0.0720])
 
 
 ## create mesh
@@ -304,5 +315,6 @@ xmlScen.add_zero_boundary(dirBound)
 
 xmlScen.add_solver_parameters("Newton", 1e-6, 50, 1e-4)
 xmlScen.add_time_stepping_file(timeSeriesFile)
+xmlScen.add_point_evaluation("B", evalPoints)
 
 xmlScen.write_file(scenName)

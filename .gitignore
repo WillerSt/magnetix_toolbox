@@ -29,5 +29,6 @@ install/
 **/magnetostatic_2D_exec
 
 # necessary input files
-!examples/magnetostatic_2D/TEAM_Problem_32/input/sources/TEAM_Problem_32_case_3.xml
-!examples/magnetostatic_2D/TEAM_Problem_32/input/material/TeamProblem32_60deg_iso_HGM.xml
+!examples/magnetostatic_2D/TEAM_Problem_32/input/sources/TEAM_Problem_32_case_3_two_periods.xml
+!examples/magnetostatic_2D/TEAM_Problem_32/input/material/TEAM32_cont_60deg.xml
+!examples/magnetostatic_2D/TEAM_Problem_32/input/validation/TEAM_Problem_32_case_3_flux.xml
