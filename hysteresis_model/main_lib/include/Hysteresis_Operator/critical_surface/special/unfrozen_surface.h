@@ -1,9 +1,5 @@
-/*
- * unfrozen_surface.h
- *
- *  Created on: 28.11.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_CRITICAL_SURFACE_SPECIAL_UNFROZEN_SURFACE_H_
 #define HYSTERESIS_OPERATOR_CRITICAL_SURFACE_SPECIAL_UNFROZEN_SURFACE_H_

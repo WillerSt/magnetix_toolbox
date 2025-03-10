@@ -1,9 +1,5 @@
-/*
- * dpc_identification_2D.h
- *
- *  Created on: 25.01.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_IDENTIFICATION_DPC_IDENTIFICATION_2D_H_
 #define HYSTERESIS_OPERATOR_IDENTIFICATION_DPC_IDENTIFICATION_2D_H_

@@ -1,9 +1,5 @@
-/*
- * critical_surface_shape.h
- *
- *  Created on: 03.03.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_CRITICAL_SURFACE_GENERIC_CRITICAL_SURFACE_H_
 #define HYSTERESIS_OPERATOR_CRITICAL_SURFACE_GENERIC_CRITICAL_SURFACE_H_

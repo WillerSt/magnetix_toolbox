@@ -1,9 +1,6 @@
-/*
- * elementary_hysteron.cpp
- *
- *  Created on: 10.05.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include "Hysteresis_Operator/elementary_hysteron.h"
 #include "Hysteresis_Operator/critical_surface/known_shapes.h"
 #include "iostream"

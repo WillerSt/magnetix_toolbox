@@ -1,9 +1,5 @@
-/*
- * continuous_dpc_model.h
- *
- *  Created on: 28.11.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef CONTINUOUS_DPC_MODEL_H_
 #define CONTINUOUS_DPC_MODEL_H_

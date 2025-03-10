@@ -1,12 +1,5 @@
-/*
- * dpc_grid_contructor.h
- *
- *  Created on: 03.07.2017
- *      Author: Stephan Willerich
- *      The class defines the basic interface for all grid constructors.
- *
- *
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HEADERS_HYSTERESIS_OPERATOR_DPC_GRID_CONTRUCTOR_H_
 #define HEADERS_HYSTERESIS_OPERATOR_DPC_GRID_CONTRUCTOR_H_

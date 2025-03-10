@@ -1,9 +1,6 @@
-/*
- * xml_grid_constructor.cpp
- *
- *  Created on: 04.07.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include "Hysteresis_Operator/xml_grid_constructor.h"
 #include "boost/filesystem.hpp"
 #include "Hysteresis_Operator/critical_surface/known_shapes.h"

@@ -1,9 +1,5 @@
-/*
- * malloc_grid.h
- *
- *  Created on: 03.05.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HEADERS_HYSTERESIS_OPERATOR_MALLOC_GRID_
 #define HEADERS_HYSTERESIS_OPERATOR_MALLOC_GRID_

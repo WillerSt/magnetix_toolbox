@@ -1,9 +1,5 @@
-/*
- * elementary_hysteron_inline.h
- *
- *  Created on: 30.03.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_ELEMENTARY_HYSTERON_INLINE_H_
 #define HYSTERESIS_OPERATOR_ELEMENTARY_HYSTERON_INLINE_H_

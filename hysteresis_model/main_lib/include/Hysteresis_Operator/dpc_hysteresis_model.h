@@ -1,10 +1,5 @@
-/*
- * dpc_hysteresis_model.h
- *
- *  Created on: 10.05.2017
- *  Author: Stephan Willerich
- *
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HEADERS_HYSTERESIS_OPERATOR_DPC_HYSTERESIS_MODEL_
 #define HEADERS_HYSTERESIS_OPERATOR_DPC_HYSTERESIS_MODEL_

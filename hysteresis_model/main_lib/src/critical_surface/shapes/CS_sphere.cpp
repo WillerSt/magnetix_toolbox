@@ -1,10 +1,5 @@
-/*
- * CS_sphere.cpp
- *
- *  Created on: 29.03.2018
- *      Author: Stephan Willerich
- */
-
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #include <Hysteresis_Operator/critical_surface/shapes/CS_sphere.h>
 #include <iomanip>

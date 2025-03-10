@@ -1,9 +1,5 @@
-/*
- * xml_grid_constructor.h
- *
- *  Created on: 03.07.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HEADERS_HYSTERESIS_OPERATOR_XML_GRID_CONSTRUCTOR_H_
 #define HEADERS_HYSTERESIS_OPERATOR_XML_GRID_CONSTRUCTOR_H_

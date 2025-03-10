@@ -1,11 +1,5 @@
-/*
- * continuous_dpc_model.cpp
- *
- *  Created on: 14.03.2019
- *      Author: Stephan Willerich
- */
-
-
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #include "Hysteresis_Operator/continuous_dpc_model.h"
 

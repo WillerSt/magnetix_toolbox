@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 CMAKE_MINIMUM_REQUIRED (VERSION 3.16)
 set(PROJECT_NAME DPC_Hysteresis)
 PROJECT(${PROJECT_NAME})

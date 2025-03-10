@@ -1,9 +1,5 @@
-/*
- * identification_grid_constructor.h
- *
- *  Created on: 21.02.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_IDENTIFICATION_IDENTIFICATION_GRID_CONSTRUCTOR_H_
 #define HYSTERESIS_OPERATOR_IDENTIFICATION_IDENTIFICATION_GRID_CONSTRUCTOR_H_

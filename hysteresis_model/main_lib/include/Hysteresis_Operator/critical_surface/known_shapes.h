@@ -1,9 +1,5 @@
-/*
- * known_shapes.h
- *
- *  Created on: 27.03.2018
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #ifndef HYSTERESIS_OPERATOR_CRITICAL_SURFACE_KNOWN_SHAPES_H_
 #define HYSTERESIS_OPERATOR_CRITICAL_SURFACE_KNOWN_SHAPES_H_

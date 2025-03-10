@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <Hysteresis_Operator/malloc_grid.h>
 #include "Hysteresis_Operator/critical_surface/known_shapes.h"
 #include  "hystLib_constants.h"

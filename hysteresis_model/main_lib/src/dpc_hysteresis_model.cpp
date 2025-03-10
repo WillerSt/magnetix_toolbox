@@ -1,9 +1,6 @@
-/*
- * dpc_hysteresis_model.cpp
- *
- *  Created on: 10.05.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <Hysteresis_Operator/dpc_hysteresis_model.h>
 #include <iostream>
 

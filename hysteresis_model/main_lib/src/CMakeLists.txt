@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 # Set specific directories
 set(DPC_HYSTERESIS_DIR "${CMAKE_INSTALL_PREFIX}/dpc_hysteresis-${HYST_LIB_VERSION}" CACHE STRING "top installation directory")
 set(DPC_HYSTERESIS_INCLUDE_DIR "${DPC_HYSTERESIS_DIR}/include")
