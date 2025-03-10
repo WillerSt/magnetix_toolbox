@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/scenario_description.h>
 namespace mag_tools::scen{
     std::size_t search_for_name(const std::vector<mag_tools::scen::xml_parameter_node>& parameters,const std::string& name, const bool& abortIfMissing){

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #pragma once
 
 #include <pugixml.hpp>
@@ -24,6 +27,7 @@ namespace mag_tools{
     constexpr auto DEFINE_FORCE_CALCULATION = "ForceCalculation";
     constexpr auto DEFINE_MOVING_DOMAIN = "MovingDomain";
     constexpr auto DEFINE_MATERIAL_DATA = "MaterialData";
+    constexpr auto DEFINE_POINT_EVAL = "PointEvaluation";
 
     namespace scen{
         class mesh_input{
@@ -176,7 +180,8 @@ namespace mag_tools{
         const scen::xml_model_entity timeStepping;
         const std::vector<scen::xml_model_entity> boundaryDef;
         const entityVec forceCalc;
-        const entityVec  movingDomains;
+        const entityVec movingDomains;
+        const entityVec pointEval;
         const std::vector<std::string> outputConfig;
 
 
@@ -193,6 +198,7 @@ namespace mag_tools{
             boundaryDef(get_entitiy_group(DEFINE_BOUNDARY_DEFINTIION)),
             forceCalc(get_entitiy_group(DEFINE_FORCE_CALCULATION)),
             movingDomains(get_entitiy_group(DEFINE_MOVING_DOMAIN)),
+            pointEval(get_entitiy_group(DEFINE_POINT_EVAL)),
             outputConfig({"not implemented yet"}){
 
         }

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/field_sources.h>
 #include <magnetics_toolbox/constants.h>
 

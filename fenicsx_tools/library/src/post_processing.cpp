@@ -1,4 +1,7 @@
-# include "magnetics_toolbox/post_processing.h"
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
+#include "magnetics_toolbox/post_processing.h"
 #include <magForce_virtualWork.h>
 #include "magnetics_toolbox/utility.h"
 

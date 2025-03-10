@@ -1,35 +1,10 @@
-#from basix.ufl_wrapper import create_vector_element
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 from basix.ufl import *
 from ufl import (Coefficient, Constant, FunctionSpace, Mesh,
                  TestFunction, TrialFunction, ds, dx, grad, inner, triangle, curl, Measure)
-'''
-shape = "triangle"
 
-
-degT = 2
-degQ = degT
-
-qu_1 = FiniteElement(family = "Quadrature",
-                             cell = shape,
-                             degree = degQ,
-                             quad_scheme="default")
-
-cg_2 = FiniteElement("CG", cell = shape, degree = degT)
-
-qu_2 = VectorElement(qu_1,2)
-
-vt = TestFunction(qu_2)
-
-uq = TrialFunction(cg_2)
-
-c = Constant(shape)
-
-dx = Measure("dx", metadata={"quadrature_degree": degQ})
-
-#a = inner(c*curl(uq), vt) * dx()
-
-
-'''
 shape = "triangle"
 
 dim = 2

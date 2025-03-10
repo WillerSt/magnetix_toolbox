@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 from xml.dom import minidom
 import numpy
 from math import pi
@@ -220,6 +223,18 @@ class scenario_xml:
 
         self.xml.appendChild(forceDef)
 
+
+    def add_point_evaluation(self, quantity, queryPoints):
+        for p in queryPoints:
+            pDef = self.root.createElement('PointEvaluation')
+            pDef.appendChild(define_property(self.root, 'quantity', str(quantity)))
+            pDef.appendChild(define_property(self.root, 'x', str(p[0])))
+            pDef.appendChild(define_property(self.root, 'y', str(p[1])))
+            if len(p) > 2:
+                pDef.appendChild(define_property(self.root, 'y', str(p[2])))
+            self.xml.appendChild(pDef)
+
+
     def add_domain_rotation(self, domainList, interfaceList, rotCenter, timeXML ):
         domainCount = 0
         domainList = transform_to_list(domainList)
@@ -247,6 +262,32 @@ class result_xml:
         self.fileName = fileName
         self.dom = minidom.parse(str(fileName))
         self.elements = self.dom.getElementsByTagName("TimeVariation")
+
+    def gather_point_queries(self, quantity):
+        pQuery = []
+        for series in self.elements:
+            
+            if str(series.attributes['name'].value) == 'pointQuery':
+                if str(series.attributes['quantity'].value) == str(quantity):
+                    noElem = 1
+                    if str(series.attributes['format'].value) == 'xy':
+                        noElem = 2
+                    elif str(series.attributes['format'].value) == 'xy':
+                        noElem = 3
+                    vals = str.split(series.firstChild.nodeValue)
+                    f = []
+                    for i in range(0, int(len(vals)/noElem)):
+                        tempVal = []
+                        for j in range(0, noElem):
+                            tempVal.append(float(vals[noElem*i+j]))
+                        
+                        f.append(numpy.asarray(tempVal))
+                    
+                    pQuery.append(f)
+        return pQuery
+
+    
+
 
     def get_force(self, domainIdx):
         breakIt = False
@@ -352,3 +393,13 @@ class time_series_xml:
         with open(str(filename)+".xml", "w") as f: 
             f.write(xml_str) 
 
+def split_components(f):
+    noElem = numpy.ndim(f[0])+1
+    splitRes = []
+    for j in range(0, noElem):
+        fComp = []
+        for i in range(0,len(f)):
+            fComp.append(f[i][j])
+        splitRes.append(numpy.asarray(fComp))
+    return splitRes
+            

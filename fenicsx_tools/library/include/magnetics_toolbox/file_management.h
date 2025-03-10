@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 /*
 * Creates a folder structure equal to:
 *

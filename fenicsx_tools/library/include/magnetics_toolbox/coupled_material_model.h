@@ -1,9 +1,5 @@
-/*
- * magnetic_material_coupling.h
- *
- *  Created on: 22.09.2017
- *      Author: Stephan Willerich
- */
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
 
 #pragma once
 #include <dolfinx.h>

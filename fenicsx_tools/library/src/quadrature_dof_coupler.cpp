@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/quadrature_dof_coupler.h>
 #include <math.h>
 

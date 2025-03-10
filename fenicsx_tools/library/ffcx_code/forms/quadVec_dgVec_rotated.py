@@ -1,4 +1,6 @@
-#from basix.ufl_wrapper import create_vector_element
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 from basix.ufl import *
 from ufl import (Coefficient, Constant, FunctionSpace, Mesh,
                  TestFunction, TrialFunction, ds, dx, grad, inner, triangle, curl, Measure)

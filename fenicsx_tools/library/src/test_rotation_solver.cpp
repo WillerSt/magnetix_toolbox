@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/maxwell_solvers.h>
 #include <magnetics_toolbox/mag_tools_basic.h>
 #include <dolfinx/fem/Constant.h>
@@ -12,7 +15,7 @@
 #include <iostream>
 #include <math.h>
 
-#include <magnetics_toolbox/contrained_solver.h>
+#include <magnetics_toolbox/constrained_solver.h>
 
 #include <magnetics_toolbox/coupled_material_model.h>
 

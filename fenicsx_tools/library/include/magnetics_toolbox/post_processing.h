@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #pragma once
 #include <magnetics_toolbox/input_interpreter.h>
 #include <magnetics_toolbox/output.h>
@@ -115,7 +118,7 @@ template<typename T> class force_calculation{
 
     std::vector<nodal_force<T>> forceCalculations;
 
-   double domDepth;
+    double domDepth;
 
 
     public:
@@ -129,21 +132,21 @@ template<typename T> class force_calculation{
                         const double& domDepthIn,
                         Eigen::Matrix<double, 2, 1> rotCenter= {0.0,  0.0});
 
-        force_calculation(const std::shared_ptr<dolfinxFunction<T>>& AIn,
-                        const std::shared_ptr<dolfinxFunction<T>>& BIn,
-                        const std::shared_ptr<dolfinxFunction<T>>& HIn,
-                        const std::shared_ptr<dolfinxFunction<T>>& nuDiffIn,
-                        const std::shared_ptr<energy_density<T>>& energyDensity,
-                        const mag_tools::mesh_container<T>& meshContainer,
-                        const mag_tools::scen::xml_model_entity& fCalcParam);
-
-        force_calculation(const std::shared_ptr<dolfinxFunction<T>>& AIn,
+    force_calculation(const std::shared_ptr<dolfinxFunction<T>>& AIn,
                     const std::shared_ptr<dolfinxFunction<T>>& BIn,
                     const std::shared_ptr<dolfinxFunction<T>>& HIn,
                     const std::shared_ptr<dolfinxFunction<T>>& nuDiffIn,
                     const std::shared_ptr<energy_density<T>>& energyDensity,
                     const mag_tools::mesh_container<T>& meshContainer,
-                    const double& domDepthIn = 1.0);
+                    const mag_tools::scen::xml_model_entity& fCalcParam);
+
+    force_calculation(const std::shared_ptr<dolfinxFunction<T>>& AIn,
+                const std::shared_ptr<dolfinxFunction<T>>& BIn,
+                const std::shared_ptr<dolfinxFunction<T>>& HIn,
+                const std::shared_ptr<dolfinxFunction<T>>& nuDiffIn,
+                const std::shared_ptr<energy_density<T>>& energyDensity,
+                const mag_tools::mesh_container<T>& meshContainer,
+                const double& domDepthIn = 1.0);
 
     void add_force_calc(const mag_tools::scen::xml_model_entity& fCalcParam);
     void update_forces(const double& angle = 0.0);
@@ -198,7 +201,139 @@ template<typename T> class force_calculation{
 
 };
 
+class point_result{
+    using T = PetscScalar;
+    using EigenCoord =  Eigen::Matrix<double, 2, 1>;
+    using EigenVec = Eigen::Matrix<double, 2, 1>;
+    const EigenCoord x;
+    std::vector<EigenVec> f;
 
+    public:
+    point_result(const EigenVec& xIn):x(xIn){}
+    void append_value(const EigenVec& valIn){
+        f.push_back(valIn);
+    }
+
+    std::vector<T> flatten_data(){
+        std::vector<T> resVec;
+        for (size_t i=0; i<f.size(); i++){
+            resVec.push_back(f[i][0]);
+            resVec.push_back(f[i][1]);
+        }
+        return resVec;
+    }
+    EigenVec get_entry(std::size_t idx){
+        return f[idx];
+    }
+    void set_entry(const size_t& idx, const EigenVec& val){
+        f[idx] = val;
+    }
+
+    void sync_data(){
+        for(size_t i = 0; i < f.size(); i++){
+            double fx = f[i][0];
+            double fy = f[i][1];
+
+            MPI_Allreduce(MPI_IN_PLACE, &fx, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+            MPI_Allreduce(MPI_IN_PLACE, &fy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+            f[i]={fx,fy};
+        }
+    }
+
+};
+
+class point_evaluation{
+    using T = PetscScalar;
+
+    public:
+    using EigenCoord =  Eigen::Matrix<double, 2, 1>;
+
+    private:
+    std::shared_ptr<dolfinxFunction<T>> f;
+    std::string unit = "";
+
+    std::vector<double> queryPoints;
+    std::vector<double> fVals;
+    std::vector<int> cellIdx;
+
+    std::vector<EigenCoord> coords;
+    std::vector<point_result> res;
+
+    dolfinx::geometry::BoundingBoxTree<T> tree = dolfinx::geometry::BoundingBoxTree<T>(*(f->function_space()->mesh()),2);
+
+    const int rank;
+
+
+    public:
+    point_evaluation(const std::shared_ptr<dolfinxFunction<T>>& fIn, const std::string& unitIn = ""):
+        f(fIn),  unit(unitIn), rank(init_rank()){}
+
+
+    point_evaluation(const std::shared_ptr<dolfinxFunction<T>>& fIn, const mag_tools::scen::xml_model_entity& pDef, 
+        const std::string& unitIn = ""):
+        point_evaluation(fIn, unitIn){
+                this->add_query_point({mag_tools::scen::as_double(pDef,"x"), mag_tools::scen::as_double(pDef,"y")});            
+        }
+
+    void add_query_point(const EigenCoord& p){
+        queryPoints.push_back(p[0]);
+        queryPoints.push_back(p[1]);
+        queryPoints.push_back(0.0);
+
+        coords.push_back(p);
+        res.push_back(point_result(p));
+        
+        auto convertedPoint =  std::array<T,3>({p[0],p[1],0.0});
+        
+        auto candidates = dolfinx::geometry::compute_collisions<T>(tree, convertedPoint);
+        
+        cellIdx.push_back(dolfinx::geometry::compute_first_colliding_cell<T>(
+            *(f->function_space()->mesh()),
+            candidates.array(),convertedPoint, 1e-10));
+
+        for (std::size_t i = 0; i < 2; i++){
+            fVals.push_back(0.0);
+        }
+
+        // std::cout<< "Found point (" <<p[0] <<", " << p[1]<<") in cell " << cellIdx[cellIdx.size()-1] << std::endl;
+    }
+    
+    void update_value(){        
+            f->eval(queryPoints, {1,3}, cellIdx, fVals, {1,2});
+            // std::cout<< "calculated point result ("<<fVals[0] <<", " << fVals[1] << ")" << std::endl;
+            for (std::size_t i=0; i<res.size(); i++){
+                res[i].append_value({fVals[2*i], fVals[2*i+1]});
+            }
+    
+    }
+
+    void append_point_data_to_file(mag_tools::output::result_xml& xmlFile){
+        for (size_t i =0; i<this->coords.size(); i++){
+            //if (cellIdx[i]>0){
+            res[i].sync_data();
+            if (rank == 0){
+                auto tSeries = xmlFile.append_time_series("pointQuery",
+                {"quantity", "format", "unit", "coord"},
+                {f->name, "xy", this->unit, 
+                    "("+std::to_string(coords[i][0]) + ", " +std::to_string(coords[i][1]) + ")"});
+                tSeries->add_values(res[i].flatten_data());
+            }
+            MPI_Barrier(MPI_COMM_WORLD);
+        }
+        
+    }
+
+    private: 
+
+    int init_rank(){
+        int _rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &_rank);
+        return _rank;
+    }
+
+
+};
 
 }
 

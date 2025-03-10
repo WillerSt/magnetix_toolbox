@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/maxwell_solvers.h>
 #include <magnetics_toolbox/mag_tools_basic.h>
 #include <dolfinx/fem/Constant.h>
@@ -70,47 +73,10 @@ namespace mag_tools{
         // initialize function spaces and functions
         const size_t dimG = mesh->topology()->dim();
 
-        /*
-        auto quadRule = basix::quadrature::make_quadrature<T>(basix::quadrature::type::Default, basix::cell::type::triangle, basix::polyset::type::standard, degQ);
-
-        auto qScaE = std::make_shared<const dolfinx::fem::FiniteElement<T>>(dolfinx::fem::FiniteElement<T>(dolfinx::mesh::CellType::triangle, quadRule[0], {quadRule[0].size()/dimG, dimG}, 1));
-        
-        auto qVecE = std::make_shared<const dolfinx::fem::FiniteElement<T>>(dolfinx::fem::FiniteElement<T>(dolfinx::mesh::CellType::triangle, quadRule[0], {quadRule[0].size()/dimG, dimG}, 2));
-        auto qMatE = std::make_shared<const dolfinx::fem::FiniteElement<T>>(dolfinx::fem::FiniteElement<T>(dolfinx::mesh::CellType::triangle, quadRule[0], {quadRule[0].size()/dimG, dimG}, 4));
-        
-        //auto qVecE = std::make_shared<const dolfinx::fem::FiniteElement<T>>(dolfinx::fem::FiniteElement<T>({qScaE ,qScaE }));
-        //auto qMatE = std::make_shared<const dolfinx::fem::FiniteElement<T>>(dolfinx::fem::FiniteElement<T>({qScaE, qScaE, qScaE, qScaE }));
-        
-        auto const dofmapSca = std::make_shared<const dolfinx::fem::DofMap>(
-                                    dolfinx::fem::create_dofmap(MPI_COMM_WORLD, 
-                                    dolfinx::fem::create_element_dof_layout<T>(*qScaE), 
-                                    *mesh->topology(), nullptr, nullptr));
-
-        auto const dofmapVec = std::make_shared<const dolfinx::fem::DofMap>(
-                            dolfinx::fem::create_dofmap(MPI_COMM_WORLD, 
-                            dolfinx::fem::create_element_dof_layout<T>(*qVecE), 
-                            *mesh->topology(), nullptr, nullptr));
-
-        auto const dofmapMat = std::make_shared<const dolfinx::fem::DofMap>(
-                            dolfinx::fem::create_dofmap(MPI_COMM_WORLD, 
-                            dolfinx::fem::create_element_dof_layout<T>(*qMatE), 
-                            *mesh->topology(), nullptr, nullptr));
-
-        const auto quadScaFS = std::make_shared<const dolfinx::fem::FunctionSpace<T>>(
-            dolfinx::fem::FunctionSpace<T>(mesh, qScaE, dofmapSca,{1}));
-
-        const auto quadVecFS = std::make_shared<const dolfinx::fem::FunctionSpace<T>>(
-            dolfinx::fem::FunctionSpace<T>(mesh, qVecE, dofmapVec,{2}));
-
-        const auto quadMatFS = std::make_shared<const dolfinx::fem::FunctionSpace<T>>(
-            dolfinx::fem::FunctionSpace<T>(mesh, qMatE, dofmapMat,{2,2}));
-
-    */
         const auto quadScaFS = utility::create_quadrature_functionspace<T>(mesh, "sca");
         const auto quadVecFS = utility::create_quadrature_functionspace<T>(mesh, "vec");
         const auto quadMatFS = utility::create_quadrature_functionspace<T>(mesh, "mat");
 
-        
         auto quadScaFunc = std::make_shared<fem::Function<T>>(quadScaFS);
         auto quadVecFunc = std::make_shared<fem::Function<T>>(quadVecFS);
         auto quadMatFunc = std::make_shared<fem::Function<T>>(quadMatFS);
@@ -187,11 +153,6 @@ namespace mag_tools{
         M_out->name = "M";
         M0_out->name = "M0";
 
-        // TODO:: Remove print functions __DEBUG
-        //std::cout << "Sub elements vec:" << quadVecFS->element()->num_sub_elements() << " Mat element" << quadMatFS->element()->num_sub_elements() << std::endl;
-        //std::cout<< "Cell: "<<  mesh->topology()->index_map(dimG)->size_global() <<" Dimension check vec: "<< M->x()->array().size() << " mat: " << nuDiff->x()->array().size() << std::endl;  
-        // initialization of output file
-
         std::vector<std::unique_ptr<dolfinx::io::VTXWriter<T>>> outputFiles;
         outputFiles.push_back(std::make_unique<dolfinx::io::VTXWriter<T>>(MPI_COMM_WORLD, fieldsFile, dolfinx::io::adios2_writer::U<T>({B,H})));
         outputFiles.push_back(std::make_unique<dolfinx::io::VTXWriter<T>>(MPI_COMM_WORLD, magFile, dolfinx::io::adios2_writer::U<T>({M_out, M0_out})));
@@ -263,18 +224,22 @@ namespace mag_tools{
             for(auto& FcalcDef: scen.forceCalc){
                 Fcalc->add_force_calc(FcalcDef);
             }
-            /*
-            std::string debugFile = "vacInd_" + std::to_string(cnt)+".bp";
-            Fcalc->output_indicator_function((fileManager.result_path()/"debug"/debugFile).c_str());
-            cnt ++;
-            */
         }
         
         if (forceCalculation.size() > 0){
             std::string debugFile = "vacInd_" + std::to_string(cnt);
             forceCalculation[0]->output_indicator_function((fileManager.result_path()/"debug"/debugFile).c_str());
         }
-        
+
+        // field evaluations
+        std::vector<std::shared_ptr<mag_tools::point_evaluation>> pEval;  
+        if (scen.pointEval.size()>0){
+            for(auto& pEvalDef:scen.pointEval){
+                if (!strcmp(mag_tools::scen::as_string(pEvalDef, "quantity").c_str(), "B")){
+                    pEval.push_back(std::make_shared<mag_tools::point_evaluation>(mag_tools::point_evaluation(B, pEvalDef)));
+                }
+            }
+        }   
 
         // initialize solver and rhs
         auto linSolver = mag_tools::LU_solver<T>(a, L, bc, A_delta);
@@ -380,6 +345,11 @@ namespace mag_tools{
                 Fcalc->update_forces(0.0);
                 Fcalc->store_results(timeStepping.get_time());
             }
+
+            // update field evaluations
+            for (auto& _pEval: pEval){
+                _pEval->update_value();
+            }
             
             // next time step
             timeStepping.next_time_step();   
@@ -396,6 +366,10 @@ namespace mag_tools{
         
         for (auto& Fcalc:forceCalculation){
            Fcalc->append_forces_to_output(xmlOutput);
+        }
+
+        for (auto& _pEval: pEval){
+            _pEval->append_point_data_to_file(xmlOutput);
         }
 
         xmlOutput.write_file();

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #pragma once
 #include "pugixml.hpp"
 #include <vector>
@@ -50,6 +53,5 @@ namespace mag_tools{
                 return currentRank;
             }
         };
-
     }    
 }

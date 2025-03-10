@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2025 Stephan Willerich
+// SPDX-License-Identifier: MIT License
+
 #include <magnetics_toolbox/input_interpreter.h>
 #include <magnetics_toolbox/mesh_container.h>
 #include <magnetics_toolbox/domain_movement.h>

@@ -1,10 +1,9 @@
-#from basix.ufl_wrapper import create_vector_element
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 from basix.ufl import *
 from ufl import (Coefficient, Constant, FunctionSpace, Mesh, form,
                  TestFunction, TrialFunction, dot, ds, dx, grad, inner, triangle, curl, Measure, replace, derivative, SpatialCoordinate)
-
-#### Basic Definitions of Shape and degree
-# Compiles with:  ffc -O -fquadrature_degree=2 -fsplit -v -l dolfin A_form_NR.ufl
 
 shape = "triangle"
 

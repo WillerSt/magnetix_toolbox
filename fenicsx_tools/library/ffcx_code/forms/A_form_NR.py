@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Stephan Willerich
+# SPDX-License-Identifier: MIT License
+
 #from basix.ufl_wrapper import create_vector_element
 from basix.ufl import *
 from ufl import (Coefficient, Constant, FunctionSpace, Mesh,
