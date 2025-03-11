@@ -28,7 +28,7 @@ namespace mag_tools{
     }
 
     template<typename T> std::shared_ptr<dolfinxMesh<T>> mesh_container<T>::initialize_mesh(){
-        std::shared_ptr<dolfinxMesh<T>> meshTemp = std::make_shared<dolfinxMesh<T>>(this->meshInput.read_mesh(this->coordElement, dolfinx::mesh::GhostMode::shared_facet, "Grid"));
+        std::shared_ptr<dolfinxMesh<T>> meshTemp = std::make_shared<dolfinxMesh<T>>(this->meshInput.read_mesh(this->coordElement, dolfinx::mesh::GhostMode::shared_vertex, "Grid"));
         // needed to identify boundaries
         meshTemp->topology()->create_connectivity(mesh->topology()->dim()-1,mesh->topology()->dim());
         // needed for coordinate shifts
