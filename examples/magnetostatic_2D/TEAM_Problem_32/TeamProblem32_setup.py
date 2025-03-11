@@ -287,7 +287,7 @@ baseCurrScale = create_team_problem_32_msh(meshName, surfTags,  lineTags, coarse
 msh_to_xdmf(meshName)
 
 ## copy material parameter file
-materialLibFile = materialLib + "/" + materialName + ".xml"
+materialLibFile = materialDir + "/" + materialName + ".xml"
 materialFile = scen.search_for_path(materialLibFile) # find absolute path for file
 
 
