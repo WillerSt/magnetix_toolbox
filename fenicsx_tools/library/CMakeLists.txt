@@ -42,7 +42,7 @@ find_package(DOLFINX REQUIRED)
 find_package(DPC_Hysteresis REQUIRED)
 
 # optional packages
-find_package(DOLFINX_MPC)
+find_package(DOLFINX_MPC QUIET)
 
 
 include(CheckSymbolExists)
