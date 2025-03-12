@@ -229,7 +229,7 @@ class point_result{
         f[idx] = val;
     }
 
-    void sync_data(){
+    void sync_data(const double& scaleFac = 1.0){
         for(size_t i = 0; i < f.size(); i++){
             double fx = f[i][0];
             double fy = f[i][1];
@@ -237,7 +237,7 @@ class point_result{
             MPI_Allreduce(MPI_IN_PLACE, &fx, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
             MPI_Allreduce(MPI_IN_PLACE, &fy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-            f[i]={fx,fy};
+            f[i]={scaleFac*fx,scaleFac*fy};
         }
     }
 
@@ -256,9 +256,12 @@ class point_evaluation{
     std::vector<double> queryPoints;
     std::vector<double> fVals;
     std::vector<int> cellIdx;
+    std::vector<double> scaleFactor;
 
     std::vector<EigenCoord> coords;
     std::vector<point_result> res;
+
+    
 
     dolfinx::geometry::BoundingBoxTree<T> tree = dolfinx::geometry::BoundingBoxTree<T>(*(f->function_space()->mesh()),2);
 
@@ -288,15 +291,18 @@ class point_evaluation{
         
         auto candidates = dolfinx::geometry::compute_collisions<T>(tree, convertedPoint);
         
-        cellIdx.push_back(dolfinx::geometry::compute_first_colliding_cell<T>(
+        int tempIdx = dolfinx::geometry::compute_first_colliding_cell<T>(
             *(f->function_space()->mesh()),
-            candidates.array(),convertedPoint, 1e-10));
+            candidates.array(),convertedPoint, 1e-10);
+        
+        double scale =  tempIdx > -1;
+        MPI_Allreduce(MPI_IN_PLACE, &scale, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+        scaleFactor.push_back(1/scale);
+        cellIdx.push_back(tempIdx);
 
         for (std::size_t i = 0; i < 2; i++){
             fVals.push_back(0.0);
         }
-
-        // std::cout<< "Found point (" <<p[0] <<", " << p[1]<<") in cell " << cellIdx[cellIdx.size()-1] << std::endl;
     }
     
     void update_value(){        
@@ -311,7 +317,7 @@ class point_evaluation{
     void append_point_data_to_file(mag_tools::output::result_xml& xmlFile){
         for (size_t i =0; i<this->coords.size(); i++){
             //if (cellIdx[i]>0){
-            res[i].sync_data();
+            res[i].sync_data(scaleFactor[i]);
             if (rank == 0){
                 auto tSeries = xmlFile.append_time_series("pointQuery",
                 {"quantity", "format", "unit", "coord"},
