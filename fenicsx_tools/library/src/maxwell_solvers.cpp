@@ -51,7 +51,7 @@ namespace mag_tools{
 
         auto scen = mag_tools::scenario_description(scenFile);
 
-        mag_tools::file_manager fileManager(scen.get_scen_path(), scen.scenario_name(), true);
+        mag_tools::file_manager fileManager(scen.get_scen_path(), scen.scenario_name(), false);
         
         // model parameter
         const double nu0 = constants::mu0inv;

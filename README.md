@@ -15,7 +15,7 @@ What is working so far:
     -    prescribed current density
     -    linear permanent magnet
 -    calculation of magnetic forces on bodies using the virtual work method
--    an example calculation of the TEAM Problem 32 including the necessary parameters for the hysteron group model
+-    an example calculation of the TEAM Problem 32 including the necessary parameters for the hysteron group model (see Comupumag website for a [general description](https://www.compumag.org/jsite/images/stories/TEAM/problem32.pdf))
 
 What could be improved:
 -    unpolished code with some stubs and deprecated routines
@@ -27,7 +27,7 @@ What could be improved:
 
 - hysteresis_model:
     -   Eigen3
-    -   boost_thread  
+    -   boost_thread
     -   boost_system
     -   boost_filesystem 
 
@@ -85,8 +85,6 @@ The created library should now be available in the *install* directory located i
 
 ## TEAM Problem 32
 
-See Comupumag website for a [general description](https://www.compumag.org/jsite/images/stories/TEAM/problem32.pdf).
-
 1.  create the executable for the 2D magnetostatic field problem
     
         cd  examples/magnetostatic_2D
@@ -99,18 +97,16 @@ See Comupumag website for a [general description](https://www.compumag.org/jsite
 
         cd TEAM_Problem_32
         python3 TeamProblem32_setup.py
-        cd ..
 
 3. run example (if possible in parallel)
 
-       mpirun -np 4 ./magnetostatic_2D_exec --scen TEAM_Problem_32/TeamProblem32_case3.xml
+       mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3.xml
 
 
-4. All results are found in the *TEAM_Problem_32/results/* directory. The fields can be viewed e.g. with Paraview.
-    Evaluate flux density at the query points using
+4. All results are found in the *TEAM_Problem_32_case3/results/* directory. The fields can be viewed e.g. with Paraview.
+    Evaluate flux density at the query points using 
 
-        cd TEAM_Problem_32
-        python3 evalFieldQuery.py
+        python3 evalFieldQuery.py TeamProblem32_case3/results/results.xml
 
 # Third party contributions
 ## tinyXML2

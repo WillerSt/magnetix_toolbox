@@ -1,8 +1,8 @@
 import fmt_scen as scen
 import matplotlib.pyplot as plt
+import sys
 
-
-results = scen.result_xml('TeamProblem32_case3_20250206/results/results.xml')
+results = scen.result_xml(sys.argv[1])
 startIdx = 100
 Bquery = results.gather_point_queries('B')
 Bcomp = scen.split_components(Bquery[0])
