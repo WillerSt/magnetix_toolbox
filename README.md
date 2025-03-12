@@ -14,7 +14,7 @@ What is working so far:
 -    field sources:
     -    prescribed current density
     -    linear permanent magnet
--    calculation magnetic forces on bodies using the virtual work method
+-    calculation of magnetic forces on bodies using the virtual work method
 -    an example calculation of the TEAM Problem 32 including the necessary parameters for the hysteron group model
 
 What could be improved:
@@ -85,6 +85,8 @@ The created library should now be available in the *install* directory located i
 
 ## TEAM Problem 32
 
+See Comupumag website for a [general description](https://www.compumag.org/jsite/images/stories/TEAM/problem32.pdf).
+
 1.  create the executable for the 2D magnetostatic field problem
     
         cd  examples/magnetostatic_2D
@@ -96,7 +98,7 @@ The created library should now be available in the *install* directory located i
 2. create input xml for example
 
         cd TEAM_Problem_32
-        python TeamProblem32_setup.py
+        python3 TeamProblem32_setup.py
         cd ..
 
 3. run example (if possible in parallel)
@@ -106,7 +108,9 @@ The created library should now be available in the *install* directory located i
 
 4. All results are found in the *TEAM_Problem_32/results/* directory. The fields can be viewed e.g. with Paraview.
     Evaluate flux density at the query points using
-    python 
+
+        cd TEAM_Problem_32
+        python3 evalFieldQuery.py
 
 # Third party contributions
 ## tinyXML2
