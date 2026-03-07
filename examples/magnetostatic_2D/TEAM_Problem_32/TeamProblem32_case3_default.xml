@@ -6,7 +6,7 @@
 	</MeshDefinition>
 	<MaterialDefinition>
 		<EntityDefintion name="type" value="HGM"/>
-		<EntityDefintion name="distFile" value="/home/wsllerich/Arbeit/git-projects/magnetix_toolbox/examples/magnetostatic_2D/TEAM_Problem_32/input/material/TEAM32_cont_60deg.xml"/>
+		<EntityDefintion name="distFile" value="input/material/TEAM32_cont_60deg.xml"/>
 		<EntityDefintion name="Bsat" value="1.412229"/>
 		<EntityDefintion name="domainIndex" value="1"/>
 	</MaterialDefinition>
