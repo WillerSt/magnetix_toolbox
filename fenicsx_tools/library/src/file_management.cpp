@@ -108,7 +108,7 @@ namespace mag_tools{
       boost::filesystem::path p(destFile);
       boost::filesystem::create_directories(p.parent_path());
       //std::cout << "Copying file " << sourceFile.c_str() << " to " << destFile.c_str() << std::endl;
-      boost::filesystem::copy_file(sourceFile, destFile, boost::filesystem::copy_option::overwrite_if_exists);
+      boost::filesystem::copy_file(sourceFile, destFile, boost::filesystem::copy_options::overwrite_existing);
     }
   }
 
