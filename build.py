@@ -203,8 +203,7 @@ class BuildSystem:
         
         print(f"\n{Colors.YELLOW}Run TEAM Problem 32 example:{Colors.NC}\n")
         print(f"{Colors.GREEN}cd examples/magnetostatic_2D/TEAM_Problem_32{Colors.NC}")
-        print(f"{Colors.GREEN}python3 TeamProblem32_setup.py{Colors.NC}")
-        print(f"{Colors.GREEN}mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3.xml{Colors.NC}")
+        print(f"{Colors.GREEN}mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3_default.xml{Colors.NC}")
         print()
 
     def build(self):
