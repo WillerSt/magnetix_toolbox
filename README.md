@@ -147,7 +147,7 @@ If you prefer to build manually:
 3.  All results are found in a time-stamped results directory. 
     If using default inputs: *TEAM_Problem_32_case3_default_<DATE>/results/*
     
-    The fields can be viewed e.g. with Paraview. Evaluate flux density at the query points using 
+    The fields can be viewed e.g. with Paraview. Evaluate flux density at the query points using (remember that **install/fenicsx_magnetics_toolbox-0.10/python** must be on your **PYTHONPATH**)
 
         python3 evalFieldQuery.py TEAM_Problem_32_case3_default_<DATE>/results/results.xml
 
