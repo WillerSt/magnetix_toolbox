@@ -137,12 +137,12 @@ If you prefer to build manually:
         cd examples/magnetostatic_2D/TEAM_Problem_32
         python3 TeamProblem32_setup.py
 
-    Default input scenarios are already prepared and shipped with the repository in the `input/` directory.
+    **Note:** This requires `gmsh` to be installed. Default input scenarios are already prepared and shipped with the repository in the `input/` directory.
 
 2.  Run the example (if possible in parallel)
 
         cd examples/magnetostatic_2D/TEAM_Problem_32
-        mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3.xml
+        mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3_default.xml
 
 3.  All results are found in a time-stamped results directory. 
     If using default inputs: *TEAM_Problem_32_case3_default_<DATE>/results/*
