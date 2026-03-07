@@ -1,42 +1,31 @@
 // SPDX-FileCopyrightText: 2025 Stephan Willerich
 // SPDX-License-Identifier: MIT License
 
-#include <magnetics_toolbox/maxwell_solvers.h>
-#include <magnetics_toolbox/mag_tools_basic.h>
-#include <dolfinx/fem/Constant.h>
-
-#include<dolfinx/io/XDMFFile.h>
-#include<dolfinx/io/VTKFile.h>
-#include<dolfinx/io/ADIOS2Writers.h>
-
-#include <A_form_NR.h>
-
-
 #include <iostream>
 #include <math.h>
 
-#include <magnetics_toolbox/constrained_solver.h>
-
-#include <magnetics_toolbox/coupled_material_model.h>
-
-#include <magnetics_toolbox/field_sources.h>
-#include <magnetics_toolbox/field_quantity.h>
-
-#include <magnetics_toolbox/input_interpreter.h>
-
-#include <magnetics_toolbox/function_processing.h>
-
-#include <magnetics_toolbox/file_management.h>
 #include <boost/program_options.hpp>
 
-#include <magnetics_toolbox/post_processing.h>
+#include <basix/quadrature.h>
+#include <basix/e-lagrange.h>
+#include <dolfinx/fem/Constant.h>
+#include <dolfinx/io/VTKFile.h>
+#include <dolfinx/io/ADIOS2Writers.h>
+
+#include <A_form_NR.h>
 #include <magForce_virtualWork.h>
 
-#include <magnetics_toolbox/utilities.h>
-#include <magnetics_toolbox/output.h>
-#include <magnetics_toolbox/domain_movement.h>
-
+#include <magnetics_toolbox/maxwell_solvers.h>
+#include <magnetics_toolbox/mag_tools_basic.h>
+#include <magnetics_toolbox/input_interpreter.h>
+#include <magnetics_toolbox/linear_solver.h>
+#include <magnetics_toolbox/field_quantity.h>
+#include <magnetics_toolbox/function_processing.h>
+#include <magnetics_toolbox/post_processing.h>
 #include <magnetics_toolbox/utility.h>
+
+#include <magnetics_toolbox/constrained_solver.h>
+#include <magnetics_toolbox/domain_movement.h>
 
 
 namespace mag_tools{
@@ -82,21 +71,26 @@ namespace mag_tools{
         const auto quadVecFS = utility::create_quadrature_functionspace<T>(mesh, "vec");
         const auto quadMatFS = utility::create_quadrature_functionspace<T>(mesh, "mat");
 
+        // cg function space
         auto cg2Elemem = basix::create_element<U<T>>(
-            basix::element::family::P, basix::cell::type::triangle, 2,
-            basix::element::lagrange_variant::unset,
-            basix::element::dpc_variant::unset, false);
+        basix::element::family::P, basix::cell::type::triangle, 2,
+        basix::element::lagrange_variant::unset,
+        basix::element::dpc_variant::unset, false);
 
-        auto cgScaFS = std::make_shared<fem::FunctionSpace<T>>(
-            fem::create_functionspace(mesh, cg2Elemem, {}));
+        auto cgScaFS = std::make_shared<dolfinx::fem::FunctionSpace<T>>(dolfinx::fem::create_functionspace<U<T>>(mesh, 
+            std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(cg2Elemem)));
 
+        // dg function spaces
         auto dg1Elemem = basix::create_element<U<T>>(
             basix::element::family::P, basix::cell::type::triangle, 1,
             basix::element::lagrange_variant::unset,
-            basix::element::dpc_variant::unset, true);  
+            basix::element::dpc_variant::unset, true);        
 
-        const auto dgVecFS = std::make_shared<fem::FunctionSpace<T>>(dolfinx::fem::create_functionspace(mesh, dg1Elemem, {dimG,1}));
-        const auto dgScaFS = std::make_shared<fem::FunctionSpace<T>>(dolfinx::fem::create_functionspace(mesh, dg1Elemem, {}));
+        const auto dgVecFS = std::make_shared<dolfinx::fem::FunctionSpace<U<T>>>(dolfinx::fem::create_functionspace<U<T>>(
+            mesh, std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(dg1Elemem, std::vector<size_t>({dimG,1}))));
+        const auto dgScaFS = std::make_shared<dolfinx::fem::FunctionSpace<T>>(dolfinx::fem::create_functionspace<U<T>>(mesh, 
+            std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(dg1Elemem)));      
+
 
         
         
@@ -112,17 +106,18 @@ namespace mag_tools{
 
         const auto rotFunc = std::make_shared<dolfinxFunction<T>>(quadMatFS);   
 
-        M->x()->set(0.0);
-        nuDiff->x()->set(0.0);
-        j->x()->set(0.0);
-        A_delta->x()->set(0.0);
-        A->x()->set(0.0);
-        M0->x()->set(0.0);
-        
-        rotFunc->x()->set(0.0);
+        std::ranges::fill(M->x()->array(), 0.0);
+        std::ranges::fill(nuDiff->x()->array(), 0.0);
+        std::ranges::fill(j->x()->array(), 0.0);
+        std::ranges::fill(A_delta->x()->array(), 0.0);
+        std::ranges::fill(A->x()->array(), 0.0);
+        std::ranges::fill(M0->x()->array(), 0.0);
 
-        auto _A_delta = dolfinxVector(la::petsc::create_vector_wrap(*A_delta->x()), false);
-        auto _A = dolfinxVector(la::petsc::create_vector_wrap(*A->x()), false);
+        
+        std::ranges::fill( rotFunc->x()->array(),0.0);
+
+        auto _A_delta = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*A_delta->x()), false);
+        auto _A = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*A->x()), false);
 
         // evaluation of B
         const std::shared_ptr<mag_tools::field_quantity<T>> curlEval = std::make_shared<mag_tools::surf_curl_evaluation<T>>(A, quadVecFS, 1.0);
@@ -204,28 +199,29 @@ namespace mag_tools{
         }
 
         // initialize constants
-        const auto nuConst = std::make_shared<const fem::Constant<T>>(nu0);
+        const auto nuConst = std::make_shared<const dolfinx::fem::Constant<T>>(nu0);
 
         // setup forms and corresponding linear system
         const auto a = std::make_shared<const varForm<T>>(dolfinx::fem::create_form<T>(
             *form_A_form_NR_a, {cgScaFS, cgScaFS}, {{"J", nuDiff}}, {}, {}, {}));
-        const auto L = std::make_shared<const fem::Form<T>>(dolfinx::fem::create_form<T>(
+        const auto L = std::make_shared<const dolfinx::fem::Form<T>>(dolfinx::fem::create_form<T>(
             *form_A_form_NR_L, {cgScaFS}, {{"j", j}, {"M0", M0}, {"M", M}, {"A_old", A}}, {{"nu", nuConst}}, {}, {}));
 
-        const auto zeroL = std::make_shared<const fem::Form<T>>(dolfinx::fem::create_form<T>(
+        const auto zeroL = std::make_shared<const dolfinx::fem::Form<T>>(dolfinx::fem::create_form<T>(
             *form_A_form_NR_L, {cgScaFS}, {{"j", j}, {"M0", M0}, {"M", zeroQuad}, {"A_old", zeroCG}}, {{"nu", nuConst}}, {}, {}));
 
         // setup boundaries
-        std::vector<std::shared_ptr<const fem::DirichletBC<T>>> bc;
+        auto bc = std::make_shared<std::vector<dolfinx::fem::DirichletBC<T>>>();
         for(auto& bdryDesc: scen.boundaryDef){
             mag_tools::boundary_definition bdryDef(bdryDesc);
-            if (std::strcmp(bdryDef.type.c_str(), "Dirichlet") == 0){
-                const auto bdofs = fem::locate_dofs_topological(*(cgScaFS->mesh()->topology_mutable()),
+            if (std::strcmp(bdryDef.type.c_str(), "Dirichlet") == 0){   
+                const auto bdofs = dolfinx::fem::locate_dofs_topological(*(cgScaFS->mesh()->topology_mutable()),
                         *(cgScaFS->dofmap()), cgScaFS->mesh()->topology()->dim()-1, boundaryMarkers->find(bdryDef.idx));
-                bc.push_back(std::make_shared<const fem::DirichletBC<T>>(bdryDef.value, bdofs, cgScaFS));
+                bc->emplace_back(bdryDef.value, bdofs, cgScaFS);
             }
             
-        }   
+        }
+
         // initialize solver and rhs
         auto linSolver = mag_tools::constrained_solver(a,L,bc, A_delta, boundaryMarkers);
 
@@ -234,7 +230,7 @@ namespace mag_tools{
 
         // Newton-Raphson parameters
         auto solverParams = mag_tools::solver_parameters(scen.solverInput);
-        auto iterMonitor = mag_tools::utils::iteration_monitor();
+        auto iterMonitor = mag_tools::utility::iteration_monitor();
 
         const double eps = solverParams.relTol;
         double res = 1/eps;
@@ -297,8 +293,9 @@ namespace mag_tools{
             }    
             
             // calculate residual for convergence monitoring
-            M->x()->set(0.0); // TODO: find cause for wrong result without initialization
-            A->x()->set(0.0); // TODO: find cause for wrong result without initialization
+            std::ranges::fill(M->x()->array(), 0.0); // TODO: find cause for wrong result without initialization
+            std::ranges::fill(A->x()->array(), 0.0); // TODO: find cause for wrong result without initialization
+            
             startRes =linSolver.calc_orig_rhs_norm(zeroL);
             
             linSolver.assemble_rhs();

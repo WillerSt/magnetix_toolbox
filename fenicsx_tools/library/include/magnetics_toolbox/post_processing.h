@@ -109,7 +109,7 @@ template<typename T> class force_calculation{
 
     const std::shared_ptr<dolfinxFunction<T>> vacInd;
 
-    const std::shared_ptr<const fem::Form<T>> LForce;
+    const std::shared_ptr<const dolfinx::fem::Form<T>> LForce;
 
     const std::shared_ptr<dolfinxRHS<T>> F_vec = std::make_shared<dolfinxRHS<T>>(dolfinx::la::Vector<T>(LForce->function_spaces()[0]->dofmap()->index_map,
                 LForce->function_spaces()[0]->dofmap()->index_map_bs()));
@@ -169,12 +169,12 @@ template<typename T> class force_calculation{
     }
 
     void output_indicator_function(const std::string& fileName){
-        io::VTKFile file(MPI_COMM_WORLD, fileName+".pvd", "w");
+        dolfinx::io::VTKFile file(MPI_COMM_WORLD, fileName+".pvd", "w");
         file.write<T>({*vacInd}, 0.0);
         
         //auto outFile = std::make_unique<dolfinx::io::VTXWriter<T>>(MPI_COMM_WORLD, fileName, dolfinx::io::adios2_writer::U<T>({this->vacInd}));
         //outFile->write(0.0);
-        io::VTXWriter<U<T>> outFile(MPI_COMM_WORLD, fileName+".bp", {vacInd}, "bp4");
+        dolfinx::io::VTXWriter<U<T>> outFile(MPI_COMM_WORLD, fileName+".bp", {vacInd}, "bp4");
         outFile.write(0.0);
         
     }
@@ -263,7 +263,7 @@ class point_evaluation{
 
     
 
-    dolfinx::geometry::BoundingBoxTree<T> tree = dolfinx::geometry::BoundingBoxTree<T>(*(f->function_space()->mesh()),2);
+    dolfinx::geometry::BoundingBoxTree<T> tree = dolfinx::geometry::BoundingBoxTree<T>(*(f->function_space()->mesh()),2, 0.0);
 
     const int rank;
 

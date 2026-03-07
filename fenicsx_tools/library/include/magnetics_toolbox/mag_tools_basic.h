@@ -10,7 +10,7 @@
 
 namespace mag_tools{
     template <typename T> using dolfinxFunction = dolfinx::fem::Function<T>;
-    template <typename T> using U = typename dolfinx::scalar_value_type_t<T>;
+    template <typename T> using U = typename dolfinx::scalar_value_t<T>;
     template <typename T> using varForm = dolfinx::fem::Form<T,U<T>>;
     template <typename T> using dolfinxFS = dolfinx::fem::FunctionSpace<U<T>>;
     template <typename T> using dolfinxFunction = dolfinx::fem::Function<T>;

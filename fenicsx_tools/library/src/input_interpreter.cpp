@@ -22,8 +22,8 @@ namespace mag_tools{
         meshInput(dolfinx::io::XDMFFile(MPI_COMM_WORLD, desc.meshInput.mesh_file(), "r")),
         boundaryInput(dolfinx::io::XDMFFile(MPI_COMM_WORLD, desc.meshInput.boundary_file(), "r")),
         mesh(this->initialize_mesh()),
-        meshMarkers(std::make_shared<const dolfinx::mesh::MeshTags<std::int32_t>>(this->meshInput.read_meshtags(*mesh,"Grid"))),
-        boundaryMarkers(std::make_shared<const dolfinx::mesh::MeshTags<std::int32_t>>(this->boundaryInput.read_meshtags(*mesh,"Grid"))){
+        meshMarkers(std::make_shared<const dolfinx::mesh::MeshTags<std::int32_t>>(this->meshInput.read_meshtags(*mesh,"Grid", "cell_marker"))),
+        boundaryMarkers(std::make_shared<const dolfinx::mesh::MeshTags<std::int32_t>>(this->boundaryInput.read_meshtags(*mesh,"Grid", "facet_marker"))){
 
     }
 
@@ -84,13 +84,6 @@ namespace mag_tools{
             }
             else{
                 timeSteps = scen::read_xml_series(seriesXML, "time");
-                /*
-                std::cout << "Read timesteps:";
-                for (std::size_t i = 0; i < timeSteps.size(); i++){
-                    std::cout <<" " << timeSteps[i];
-                }
-                std::cout << std::endl;
-                */
             }
         }
         else if (strcmp(type.c_str(), "singleStep")==0){
@@ -187,7 +180,7 @@ namespace mag_tools{
                     materialModels.push_back(std::make_shared<mag_tools::coupled_const_mag>(magParams, dofCouplerIn->get_ref_vec(), dofCouplerJac->get_ref_vec(), dofCouplerOut->get_ref_vec(), i));
                 }
             }            
-        }
+        } // spline interpolation
         else if (strcmp(type.c_str(), "table")==0){
             auto xmlFile = mag_tools::scen::as_string(descIn, "xmlFile");
             auto Htable = scen::read_xml_material(xmlFile, "H");
@@ -298,20 +291,7 @@ namespace mag_tools{
                     auto quantity = parameters[scen::search_for_name(parameters, "quantityName")].value;
 
                     auto timeSteps = scen::read_xml_series(seriesXML, "time");
-                    /*
-                    std::cout << "Read timesteps:";
-                    for (std::size_t i = 0; i < timeSteps.size(); i++){
-                        std::cout <<" " << timeSteps[i];
-                    }
-                    */
                     auto inputValues = scen::read_xml_series(seriesXML, quantity.c_str());             
-                    /*
-                    std::cout << "\nRead inut:";
-                    for (std::size_t i = 0; i < inputValues.size(); i++){
-                        std::cout <<" " << inputValues[i];
-                    }
-                    std::cout << std::endl;
-                    */
                     source = std::make_shared<mag_tools::src::const_scalar_source<T>>(outputFunction, meshContainer.get_mesh_markers(), scale, domain,
                             std::make_shared<const mag_tools::src::value_table>(timeSteps, inputValues));
                     
@@ -326,7 +306,6 @@ namespace mag_tools{
                 }
             }
         }
-
     }
 
     template<typename T> void source_container<T>::update_source(const double& t){

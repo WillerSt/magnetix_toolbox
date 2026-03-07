@@ -22,7 +22,7 @@ namespace mag_tools{
         dolfinx::io::XDMFFile meshInput;
         dolfinx::io::XDMFFile boundaryInput;
 
-        const std::shared_ptr<dolfinxMesh<T>> mesh;
+        const std::shared_ptr<dolfinxMesh<U<T>>> mesh;
         const std::shared_ptr<const dolfinx::mesh::MeshTags<std::int32_t>> meshMarkers;
         const std::shared_ptr<const dolfinx::mesh::MeshTags<std::int32_t>> boundaryMarkers;
 

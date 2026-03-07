@@ -8,7 +8,7 @@ namespace mag_tools{
 
     template<typename T> quadrature_dof_coupler<T>::quadrature_dof_coupler(    
             const std::shared_ptr<dolfinx::fem::Function<T>>& funcIn, 
-            const std::shared_ptr<const mesh::MeshTags<std::int32_t>>& meshMarkersIn,
+            const std::shared_ptr<const dolfinx::mesh::MeshTags<std::int32_t>>& meshMarkersIn,
             const int& tagIn,
             const int& dofDimRowsIn,
             const int& dofDimColsIn):
@@ -123,13 +123,6 @@ namespace mag_tools{
     }
 
     template<typename T> void quadrature_dof_coupler<T>::initialize_coupling(const std::vector<int32_t>&  cellIndices){
-    //void quadrature_dof_coupler<double>::initialize_coupling(const std::vector<int32_t>&  cellIndices){ using T =double;
-        /*
-        std::cout << "Vector size: " << this->quadFunc->x()->array().size() << std::endl;
-        std::cout << "Function " << this->quadFunc->name << " is of type " << 
-        this->quadFunc->function_space()->element()->family()<< " with " << quadFunc->function_space()->element()->block_size()
-        << " sub elements\n";
-        */
         /*
             1. loop over all cells
                 2. loop over components
@@ -170,25 +163,11 @@ namespace mag_tools{
                     
 
         */
-        
-       // std::cout << "initializing coupling of function " << this->quadFunc->name << std::endl; 
 
-        auto shape = this->quadFunc->function_space()->value_shape();
+        auto shape = this->quadFunc->function_space()->element()->value_shape();
         
         bool matCheck = shape.size()>1;
         auto bs = this->quadFunc->function_space()->dofmap()->bs();
-        
-        //size_t idxTemp;
-        
-        /*
-        bool shapeCheck = true;
-        if ((this->dofDimRows != shape[0])||(this->dofDimCols*this->dofDimRows != shape.size())){
-            shapeCheck = false;
-        }
-        if (!shapeCheck){
-            std::cout << "Shape check failed\n";
-        }
-        */
         
         size_t noC;
         if (shape.size()>0){
@@ -235,53 +214,12 @@ namespace mag_tools{
                     }
                 }
                 
-                /*
-                if (dofDimCols> 1){
-                    size_t tempIdx = idxMat[0][1];
-                    idxMat[0][1] = idxMat[1][0];
-                    idxMat[1][0] = tempIdx;
-                }
-                */
                 
                 for (size_t i = 0; i<dofDimRows; i++){
                     for (size_t j = 0; j<dofDimCols; j++){
-                        //std::cout << "Here0: i: " << i <<" of " << idxMat.size() << " j " << j<<" of  " << idxMat[i].size() << " "  << cellDofs[uIdx] << std::endl;
-                        dofMat[i][j] = &(this->quadFunc->x()->mutable_array()[idxMat[i][j]]);
+                        dofMat[i][j] = &(this->quadFunc->x()->array()[idxMat[i][j]]);
                     }
                 }
-
-                /*
-                for (size_t j = 0; j<dofDimCols; j++){
-                    std::vector<int> rowIdxTemp = {};
-                    for (size_t i = 0; i<dofDimRows; i++){
-                        idxTemp = cellDofs[uIdx]*bs+dofDimRows*j+i;
-                        rowIdxTemp.push_back(idxTemp);
-                    }
-                idxMat.push_back(rowIdxTemp);
-                }
-                for (size_t j = 0; j<dofDimCols; j++){
-                    std::vector<T*> rowPtrTemp  = {};
-                    std::cout << "There 1\n";
-                    for (size_t i = 0; i<dofDimRows; i++){                  
-                        idxTemp = cellDofs[uIdx]*bs+dofDimRows*j+i;
-                        
-                        std::cout << "There 1a\n";
-                        if (idxMat[i][j]>=this->quadFunc->x()->mutable_array().size()){
-                            std::cout << "Won't work " << idxMat[i][j] << " max is " << this->quadFunc->x()->mutable_array().size() << " ref was " << idxTemp  << std::endl;
-                        }
-                        if(idxTemp !=idxMat[i][j] ){
-                            std::cout << "Faulty index mat entry:"  << idxMat[i][j]  << " should be " <<  idxTemp  << std::endl;
-                            exit(1);
-                        }
-                        std::cout << "There 3a\n";
-                        rowPtrTemp.push_back(&(this->quadFunc->x()->mutable_array()[idxMat[i][j]]));
-                        std::cout << "There 4a\n";
-                        
-                    }
-                    
-                dofMat.push_back(rowPtrTemp);
-                }
-                */
 
                 this->idxVector->push_back(idxMat);
                 this->refVector->push_back(dofMat);
@@ -289,21 +227,6 @@ namespace mag_tools{
             }
             
         }
-            
-        // TODO: delete, not needed any more?
-        /*
-        std::vector<std::shared_ptr<const dolfinx::fem::DofMap>> compDofMap;
-         for (int compIdx = 0; compIdx < std::max(this->quadFunc->function_space()->element()->num_sub_elements(), 1); compIdx++){
-            
-            if (this->quadFunc->function_space()->element()->num_sub_elements()>0){
-                    compDofMap.push_back(std::make_shared<dolfinx::fem::DofMap>(this->quadFunc->function_space()->dofmap()->extract_sub_dofmap(std::vector<int>({compIdx}))));
-            }
-                else{
-                    compDofMap.push_back(this->quadFunc->function_space()->dofmap());
-                }
-         }
-         */
-        //std::cout << "Finished init coupling of function " << this->quadFunc->name << "\n";
     }
 
 

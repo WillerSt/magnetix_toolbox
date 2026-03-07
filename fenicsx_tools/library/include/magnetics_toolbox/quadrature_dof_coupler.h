@@ -18,7 +18,7 @@ public:
 
 
 const std::shared_ptr<dolfinxFunction<T>> quadFunc;
-const std::shared_ptr<const mesh::MeshTags<std::int32_t>> meshMarkers;
+const std::shared_ptr<const dolfinx::mesh::MeshTags<std::int32_t>> meshMarkers;
 
 const int tag;
 const size_t dofDimRows;
@@ -32,7 +32,7 @@ const std::shared_ptr<idxVecType> idxVector;
 public:
     quadrature_dof_coupler(    
         const std::shared_ptr<dolfinx::fem::Function<T>>& funcIn, 
-        const std::shared_ptr<const mesh::MeshTags<std::int32_t>>& meshMarkersIn,
+        const std::shared_ptr<const dolfinx::mesh::MeshTags<std::int32_t>>& meshMarkersIn,
         const int& tagIn,
         const int& dofDimRowsIn,
         const int& dofDimColsIn);

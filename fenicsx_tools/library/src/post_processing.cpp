@@ -91,7 +91,8 @@ namespace mag_tools{
                    B(BIn), H(HIn){
 
                     Wmag->name = "Wmag0";
-                    Wmag->x()->set(0.0);
+                    std::ranges::fill(Wmag->x()->array(), 0.0);
+
                     for (auto& mat: *matDefs){
                         dofCouplers.push_back(std::make_shared<quadrature_dof_coupler<T>>(Wmag, meshMarkers, mat.get_domain_index(), 1, 1));
                         mat.couple_energy_density(dofCouplers[dofCouplers.size()-1]);
@@ -121,21 +122,22 @@ namespace mag_tools{
                         P1(std::make_shared<const dolfinxFS<T>>(
                             dolfinx::fem::create_functionspace(
                                 mesh,
+                                std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(
                                 basix::create_element<U<T>>(
                                     basix::element::family::P, 
                                     dolfinx::mesh::cell_type_to_basix_type(mesh->geometry().cmap().cell_shape()), 
                                     1,
                                     basix::element::lagrange_variant::unset,
-                                    basix::element::dpc_variant::unset, false),
-                                {mesh->topology()->dim()})
+                                    basix::element::dpc_variant::unset, false,{mesh->topology()->dim()}))
+                                )
                                 )
                             ),
                         Wmag0(energyDensity->get_density_function()),
-                        LForce(std::make_shared<const fem::Form<T>>(dolfinx::fem::create_form<T>(
+                        LForce(std::make_shared<const dolfinx::fem::Form<T>>(dolfinx::fem::create_form<T>(
                             *form_magForce_virtualWork_L, {P1}, {{"A", A}, {"B", B}, {"H", H}, {"nu", nuDiff}, {"Wmag0", Wmag0}, {"vacInd", vacInd}}, 
-                                {   {"c0",std::make_shared<const fem::Constant<T>>(0.0)}, 
-                                    {"c1",std::make_shared<const fem::Constant<T>>(0.0)}, 
-                                    {"c2",std::make_shared<const fem::Constant<T>>(0.0)}}, {}, {}))),
+                                {   {"c0",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}, 
+                                    {"c1",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}, 
+                                    {"c2",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}}, {}, {}))),
                         domDepth(domDepthIn){
 
         for (auto& i : idxIn){
@@ -166,32 +168,36 @@ namespace mag_tools{
                         P1(std::make_shared<const dolfinxFS<T>>(
                             dolfinx::fem::create_functionspace(
                                 mesh,
+                                std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(
                                 basix::create_element<U<T>>(
                                     basix::element::family::P, basix::cell::type::triangle, 1,
                                     basix::element::lagrange_variant::unset,
                                     basix::element::dpc_variant::unset, false),
-                                {2})
+                                std::vector<size_t>({2,1}))
+                                )
                                 )
                             ),
                         Wmag0(energyDensity->get_density_function()),
                         vacInd(std::make_shared<dolfinxFunction<T>>(std::make_shared<const dolfinxFS<T>>(
                             dolfinx::fem::create_functionspace(
                                 mesh,
-                                basix::create_element<U<T>>(
-                                    basix::element::family::P, basix::cell::type::triangle, 0,
-                                    basix::element::lagrange_variant::unset,
-                                    basix::element::dpc_variant::unset, true),
-                                {})
+                                std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(
+                                    basix::create_element<U<T>>(
+                                        basix::element::family::P, basix::cell::type::triangle, 0,
+                                        basix::element::lagrange_variant::unset,
+                                        basix::element::dpc_variant::unset, true)
+                                )
+                                )
                                 )
                             )),
-                        LForce(std::make_shared<const fem::Form<T>>(dolfinx::fem::create_form<T>(
+                        LForce(std::make_shared<const dolfinx::fem::Form<T>>(dolfinx::fem::create_form<T>(
                             *form_magForce_virtualWork_L, {P1}, {{"A", A}, {"B", B}, {"H", H}, {"nu", nuDiff}, {"Wmag0", Wmag0}, {"vacInd", vacInd}}, 
-                                {   {"c0",std::make_shared<const fem::Constant<T>>(0.0)}, 
-                                    {"c1",std::make_shared<const fem::Constant<T>>(0.0)}, 
-                                    {"c2",std::make_shared<const fem::Constant<T>>(0.0)}}, {}, {}))),
+                                {   {"c0",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}, 
+                                    {"c1",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}, 
+                                    {"c2",std::make_shared<const dolfinx::fem::Constant<T>>(0.0)}}, {}, {}))),
                         domDepth(domDepthIn)
         {
-            vacInd->x()->set(1.0);
+            std::ranges::fill(vacInd->x()->array(), 1.0);
             vacInd->name = "vacuumIndicator";
         }
 
@@ -234,8 +240,8 @@ namespace mag_tools{
 
 
     template<typename T> void force_calculation<T>::assemble_force_vector(){
-        F_vec->set(0.0);
-        dolfinx::fem::assemble_vector(F_vec->mutable_array(), *LForce);
+        std::ranges::fill(F_vec->array(), 0.0); // necessary?
+        dolfinx::fem::assemble_vector(F_vec->array(), *LForce);
     }
     
 

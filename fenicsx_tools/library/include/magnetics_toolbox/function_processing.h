@@ -19,7 +19,7 @@ namespace mag_tools{
         const std::shared_ptr<dolfinxFS<T>> dgVecFS;
         const std::shared_ptr<const varForm<T>> a;
         dolfinx::la::petsc::Matrix A = dolfinx::la::petsc::Matrix(dolfinx::fem::petsc::create_matrix(*a), false);
-        la::petsc::KrylovSolver lu = la::petsc::KrylovSolver(MPI_COMM_WORLD);
+        dolfinx::la::petsc::KrylovSolver lu = dolfinx::la::petsc::KrylovSolver(MPI_COMM_WORLD);
         const int dim;
 
         public:

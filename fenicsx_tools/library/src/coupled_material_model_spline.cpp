@@ -54,11 +54,13 @@ namespace mag_tools{
 				if (((*xTable)[i] <= x) && ((*xTable)[i+1]>x)){
 					double dx = x - (*xTable)[i];
 					dy = (*b)[i] + 2*(*c)[i]*dx + 3*(*d)[i]*pow(dx,2);
+					/*
 					if (dy < 0){
 						std::cout << "alarm x: " << x  << " i: " << i << " dy: " << dy << "\n"; 
 						std::cout << "alarm b: " << (*b)[i]  << " c: " << (*c)[i] << " d: " << (*d)[i] << "\n"; 
 						dy = (*m)[i];
 					}
+					*/
 					break;
 				}
 			}
@@ -76,10 +78,12 @@ namespace mag_tools{
 		}
 		else{
 			for (std::size_t i = 0; i < xTable->size(); i++){
+				/*
 				if (i == xTable->size()-1){
 					std::cout << "Should not get here akima interpolation x:"<< x << " xMin " << xMin << " xMax " << xMax <<  " \n";
 					exit(1);
 				}
+				*/
 				if (((*xTable)[i] <= x) && ((*xTable)[i+1]>x)){
 					double xUp = x;
 					double xLow = (*xTable)[i];
@@ -215,12 +219,13 @@ namespace mag_tools{
 			xLow = (*xTable)[i-1];
 			yInt.push_back(yInt[i-1] + (*a)[i]*(xUp-xLow) + 0.5*(*b)[i]*(pow(xUp-xLow,2)) 
 				+ 1/3*(*c)[i]*(pow(xUp-xLow,3)) + 0.25*(*d)[i]*(pow(xUp-xLow,4)) );
-
+			
+			/*
 			if (yInt[i] > (*xTable)[i] * (*yTable)[i])
 			{
 				std::cout << "Nope!: " << " H " << (*xTable)[i] << " B "<< (*yTable)[i]  << " yI " << yInt[i] << std::endl;
 			}
-
+			*/
 			// std::cout << "xLow " << xLow << " xUp "  << xUp << " result: " << yInt[i]<< "\n";
 			// std::cout << "a" << (*a)[i] << " b "  << (*b)[i] << " c " << (*c)[i]<< " d " <<(*d)[i]<< "\n";
 		}

@@ -583,7 +583,7 @@ class coupled_spline_H_B_2D : public magnetic_material_coupling<PetscScalar>{
 		if (Hnorm > 1e-6)
 		{
 			double fak3 = Hx * Hy / (std::pow(Hnorm,2));
-			return splineInt->interpolate_derivative(abs(Hnorm)) * fak3 - splineInt->interpolate_value(abs(Hnorm)) * fak3 / Hnorm;
+			return (splineInt->interpolate_derivative(abs(Hnorm))) * fak3 - splineInt->interpolate_value(abs(Hnorm)) * fak3 / Hnorm;
 		}
 		else
 		{

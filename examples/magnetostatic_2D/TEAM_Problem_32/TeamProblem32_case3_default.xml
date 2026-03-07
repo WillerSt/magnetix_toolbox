@@ -1,0 +1,70 @@
+<?xml version="1.0" ?>
+<ScenarioDescription name="TeamProblem32_case3_default">
+	<MeshDefinition>
+		<EntityDefintion name="meshFile" value="input/geometry/Team32_half_default.xdmf"/>
+		<EntityDefintion name="boundaryFile" value="input/geometry/Team32_half_default_facets.xdmf"/>
+	</MeshDefinition>
+	<MaterialDefinition>
+		<EntityDefintion name="type" value="HGM"/>
+		<EntityDefintion name="distFile" value="/home/wsllerich/Arbeit/git-projects/magnetix_toolbox/examples/magnetostatic_2D/TEAM_Problem_32/input/material/TEAM32_cont_60deg.xml"/>
+		<EntityDefintion name="Bsat" value="1.412229"/>
+		<EntityDefintion name="domainIndex" value="1"/>
+	</MaterialDefinition>
+	<SourceDefinition>
+		<EntityDefintion name="type" value="currentDensity"/>
+		<EntityDefintion name="distribution" value="const"/>
+		<EntityDefintion name="evolution" value="timeSeries"/>
+		<EntityDefintion name="xmlFile" value="input/sources/TEAM_Problem_32_case_3_two_periods.xml"/>
+		<EntityDefintion name="quantityName" value="i1"/>
+		<EntityDefintion name="domain_1" value="3"/>
+		<EntityDefintion name="scale_1" value="-157894.73684210528"/>
+		<EntityDefintion name="domain_2" value="4"/>
+		<EntityDefintion name="scale_2" value="157894.73684210528"/>
+	</SourceDefinition>
+	<SourceDefinition>
+		<EntityDefintion name="type" value="currentDensity"/>
+		<EntityDefintion name="distribution" value="const"/>
+		<EntityDefintion name="evolution" value="timeSeries"/>
+		<EntityDefintion name="xmlFile" value="input/sources/TEAM_Problem_32_case_3_two_periods.xml"/>
+		<EntityDefintion name="quantityName" value="i2"/>
+		<EntityDefintion name="domain_1" value="5"/>
+		<EntityDefintion name="scale_1" value="-157894.73684210528"/>
+		<EntityDefintion name="domain_2" value="6"/>
+		<EntityDefintion name="scale_2" value="157894.73684210528"/>
+	</SourceDefinition>
+	<BoundaryhDefinition>
+		<EntityDefintion name="type" value="Dirichlet"/>
+		<EntityDefintion name="value" value="0.0"/>
+		<EntityDefintion name="index" value="2"/>
+	</BoundaryhDefinition>
+	<SolverParameters>
+		<EntityDefintion name="type" value="Newton"/>
+		<EntityDefintion name="rTol" value="1e-06"/>
+		<EntityDefintion name="maxIter" value="50"/>
+		<EntityDefintion name="minRes" value="0.0001"/>
+	</SolverParameters>
+	<TimeStepping>
+		<EntityDefintion name="type" value="xmlFile"/>
+		<EntityDefintion name="xmlFile" value="input/sources/TEAM_Problem_32_case_3_two_periods.xml"/>
+	</TimeStepping>
+	<PointEvaluation>
+		<EntityDefintion name="quantity" value="B"/>
+		<EntityDefintion name="x" value="0.08725"/>
+		<EntityDefintion name="y" value="0.0615"/>
+	</PointEvaluation>
+	<PointEvaluation>
+		<EntityDefintion name="quantity" value="B"/>
+		<EntityDefintion name="x" value="0.08725"/>
+		<EntityDefintion name="y" value="0.064"/>
+	</PointEvaluation>
+	<PointEvaluation>
+		<EntityDefintion name="quantity" value="B"/>
+		<EntityDefintion name="x" value="0.08725"/>
+		<EntityDefintion name="y" value="0.0695"/>
+	</PointEvaluation>
+	<PointEvaluation>
+		<EntityDefintion name="quantity" value="B"/>
+		<EntityDefintion name="x" value="0.08725"/>
+		<EntityDefintion name="y" value="0.072"/>
+	</PointEvaluation>
+</ScenarioDescription>

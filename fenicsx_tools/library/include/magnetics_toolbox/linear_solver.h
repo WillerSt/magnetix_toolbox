@@ -11,7 +11,7 @@ namespace mag_tools{
         protected:
         const std::shared_ptr<const varForm<T>> a;
         const std::shared_ptr<const varForm<T>> L;
-        const std::vector<std::shared_ptr<const dolfinxDirichletBC<T>>> bc;
+        const std::shared_ptr<std::vector<dolfinx::fem::DirichletBC<T>>> bc;
 
         const std::shared_ptr<dolfinxFunction<T>> solFunc;
 
@@ -19,8 +19,8 @@ namespace mag_tools{
                     L->function_spaces()[0]->dofmap()->index_map_bs());
 
         dolfinxMatrix A = dolfinx::la::petsc::Matrix(dolfinx::fem::petsc::create_matrix(*a), false);
-        dolfinxVector x = dolfinxVector(la::petsc::create_vector_wrap(*solFunc->x()), false); 
-        dolfinxVector y = dolfinxVector(la::petsc::create_vector_wrap(yForm), false); 
+        dolfinxVector x = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*solFunc->x()), false); 
+        dolfinxVector y = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(yForm), false); 
 
         dolfinxLinearSolver linearSolver = dolfinxLinearSolver(MPI_COMM_WORLD);
 
@@ -29,7 +29,7 @@ namespace mag_tools{
         linear_solver(
             const std::shared_ptr<const varForm<T>>& aIn, 
             const std::shared_ptr<const varForm<T>>& LIn, 
-            const std::vector<std::shared_ptr<const dolfinxDirichletBC<T>>>& bcIn,  
+            const std::shared_ptr<std::vector<dolfinx::fem::DirichletBC<T>>>& bcIn,  
             const std::shared_ptr<dolfinxFunction<T>>& solFuncIn):
             a(aIn), L(LIn), bc(bcIn), solFunc(solFuncIn)
         {}
@@ -57,7 +57,7 @@ namespace mag_tools{
         LU_solver(
             const std::shared_ptr<const varForm<T>>& aIn, 
             const std::shared_ptr<const varForm<T>>& LIn, 
-            const std::vector<std::shared_ptr<const dolfinxDirichletBC<T>>>& bcIn,  
+            const std::shared_ptr<std::vector<dolfinx::fem::DirichletBC<T>>>& bcIn,  
             const std::shared_ptr<dolfinxFunction<T>>& solFuncIn,
             const bool& useMumps = false);
 

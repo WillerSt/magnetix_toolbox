@@ -1,6 +1,7 @@
 # build and install directories
 build/
 install/
+.github/
 
 # unwanted file types
 **.h5
@@ -32,3 +33,11 @@ install/
 !examples/magnetostatic_2D/TEAM_Problem_32/input/sources/TEAM_Problem_32_case_3_two_periods.xml
 !examples/magnetostatic_2D/TEAM_Problem_32/input/material/TEAM32_cont_60deg.xml
 !examples/magnetostatic_2D/TEAM_Problem_32/input/validation/TEAM_Problem_32_case_3_flux.xml
+
+# default example inputs can be regenerated
+!examples/magnetostatic_2D/TEAM_Problem_32/input/geometry/Team32_half_default.h5   
+!examples/magnetostatic_2D/TEAM_Problem_32/input/geometry/Team32_half_default.xdmf      
+!examples/magnetostatic_2D/TEAM_Problem_32/input/geometry/Team32_half_default_facets.xdmf
+!examples/magnetostatic_2D/TEAM_Problem_32/input/geometry/Team32_half_default_facets.h5
+
+!examples/magnetostatic_2D/TEAM_Problem_32/TeamProblem32_case3_default.xml

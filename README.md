@@ -31,82 +31,125 @@ What could be improved:
     -   boost_system
     -   boost_filesystem 
 
--   fenicsx 0.9 with
+-   fenicsx 0.10 with
     -   Adios2 
 
 ### optional
 
-- dolfinx_mpc 0.9.0 
+- dolfinx_mpc 0.10.0 
 
-## example requirements
-
-- gmsh 
 
 ### python libraries
-- meshio
+
 - matplotlib
 - pandas
+
+### optional python libraries
+- gmsh 
+- meshio
 
 ### recommended
 - Paraview
 
 # Installation
-## hysteresis models
-The library containing the hysteron group model needed to run the *TEAM Problem 32* is part of the repository
-Install first using
 
-    cd hysteresis_model
-    mkdir build && cd build
-    cmake ..
-    make install
+## Prerequisites
 
-The created library should now be available in the install *directory* located in the base directory of the repository.
+Ensure that FEniCSx libraries version 0.10.0 and their dependencies are available in your environment
 
-## fenicsx-magnetics-toolbox
-Make sure that cmake can find the hysteresis model libraries by appending *install/dpc_hysteresis-0.1* to your *CMAKE_PREFIX_PATH*.
+## Quick Build (Recommended)
 
-Not having *dolfin_mpc* installed installed will result in a warning from cmake which can be ignored.
+The easiest way to build everything is using the provided build script:
 
-Install by running
+```bash
+./build.sh
+```
 
-    cd fenicsx_tools/library
-    mkdir build && cd build
-    cmake ..
-    make install
+Or using the Python variant:
 
-The created library should now be available in the *install* directory located in the base directory of the repository.
+```bash
+python3 build.py
+```
 
+Both scripts will:
+- Configure and build all components (hysteresis models, fenicsx-magnetics-toolbox, and examples)
+- Install everything to the `install/` directory
+- Display environment setup instructions
 
-# Running the examples
-## Preparation
--    Append *install/dpc_hysteresis-0.1*  and the *install/fenicsx_magnetics_toolbox-0.9* directories (default installation paths) to your *CMAKE_PREFIX_PATH*
--    Append *install/fenicsx_magnetics_toolbox-0.9/python/* to your *PYTHONPATH*
+### Build Script Options
+
+```bash
+./build.sh -h                 # Show help
+./build.sh -j 4               # Use 4 parallel jobs
+./build.sh -c                 # Clean build (remove build artifacts)
+./build.sh -v                 # Verbose output
+```
+
+The same options work with `python3 build.py`.
+
+## Environment Setup
+
+After building, the scripts will display the required environment variables. To make them permanent, add to your shell configuration (`~/.bashrc`, `~/.zshrc`, etc.):
+
+```bash
+export CMAKE_PREFIX_PATH="${MAGNETIX_TOOLBOX}/install/dpc_hysteresis-0.1:${MAGNETIX_TOOLBOX}/install/fenicsx_magnetics_toolbox-0.10:$CMAKE_PREFIX_PATH"
+export PYTHONPATH="${MAGNETIX_TOOLBOX}/install/fenicsx_magnetics_toolbox-0.10/python:$PYTHONPATH"
+```
+
+where `${MAGNETIX_TOOLBOX}` is the path to this repository.
+
+## Manual Build (Alternative)
+
+If you prefer to build manually:
+
+1. **Build hysteresis models**
+
+        cd hysteresis_model
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=../install ..
+        make -j 4
+        make install
+
+2. **Build fenicsx-magnetics-toolbox**
+
+        cd fenicsx_tools/library
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=../../install -DCMAKE_PREFIX_PATH=../../install/dpc_hysteresis-0.1 ..
+        make -j 4
+        make install
+
+3. **Build examples**
+
+        cd examples/magnetostatic_2D
+        mkdir build && cd build
+        cmake -DCMAKE_PREFIX_PATH=../../install/dpc_hysteresis-0.1:../../install/fenicsx_magnetics_toolbox-0.10 ..
+        make -j 4
+
+## Notes
+
+- Not having *dolfinx_mpc* installed will result in a warning from cmake which can be ignored.
 
 
 ## TEAM Problem 32
 
-1.  create the executable for the 2D magnetostatic field problem
-    
-        cd  examples/magnetostatic_2D
-        mkdir build &&  cd build 
-        cmake ..
-        make 
-        mv magnetostatic_2D_exec .. && cd ..
+1.  **(Optional)** Generate custom input XML for the example
 
-2. create input xml for example
-
-        cd TEAM_Problem_32
+        cd examples/magnetostatic_2D/TEAM_Problem_32
         python3 TeamProblem32_setup.py
 
-3. run example (if possible in parallel)
+    Default input scenarios are already prepared and shipped with the repository in the `input/` directory.
 
-       mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3.xml
+2.  Run the example (if possible in parallel)
 
+        cd examples/magnetostatic_2D/TEAM_Problem_32
+        mpirun -np 4 ../magnetostatic_2D_exec --scen TeamProblem32_case3.xml
 
-4. All results are found in the *TEAM_Problem_32_case3/results/* directory. The fields can be viewed e.g. with Paraview.
-    Evaluate flux density at the query points using 
+3.  All results are found in a time-stamped results directory. 
+    If using default inputs: *TEAM_Problem_32_case3_default_<DATE>/results/*
+    
+    The fields can be viewed e.g. with Paraview. Evaluate flux density at the query points using 
 
-        python3 evalFieldQuery.py TeamProblem32_case3/results/results.xml
+        python3 evalFieldQuery.py TEAM_Problem_32_case3_default_<DATE>/results/results.xml
 
 # Third party contributions
 ## tinyXML2

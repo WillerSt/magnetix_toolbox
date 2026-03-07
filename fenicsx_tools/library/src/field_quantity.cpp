@@ -6,17 +6,17 @@
 namespace mag_tools{
     template<typename T> linear_superposition<T>::linear_superposition(const std::vector<std::shared_ptr<dolfinxFunction<T>>>& inputFunctions,  std::vector<double> scaleIn):
         field_quantity<T>(inputFunctions[0]->function_space()), inFcts(inputFunctions),  
-        scale(scaleIn), outVec(dolfinxVector(la::petsc::create_vector_wrap(*this->outFct->x()), false)){
+        scale(scaleIn), outVec(dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*this->outFct->x()), false)){
 
     for (std::size_t i = 0; i < inFcts.size(); i++){
-        dofVecs.push_back(dolfinxVector(la::petsc::create_vector_wrap(*inFcts[i]->x()), false));
+        dofVecs.push_back(dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*inFcts[i]->x()), false));
     }
     update_result();
 
     }
 
     template<typename T> void linear_superposition<T>::update_result(){
-        this->outFct->x()->set(0.0);
+        std::ranges::fill(this->outFct->x()->array(), 0.0);
         for (std::size_t i = 0; i < this->inFcts.size(); i++){
             VecAXPY(outVec.vec(), scale[i], this->dofVecs[i].vec());
         }
@@ -45,22 +45,24 @@ namespace mag_tools{
     template<typename T> void surf_curl_evaluation<T>::initialize_variables(){
         // assemble projection matrix
         MatZeroEntries(curlProjMat.mat());
-        fem::assemble_matrix(la::petsc::Matrix::set_block_fn(curlProjMat.mat(), ADD_VALUES), *projForm, {});
+
+        //std::cout <<projForm->function_spaces()[0]->mesh()->topology()->dim<<std::endl; 
+        dolfinx::fem::assemble_matrix(dolfinx::la::petsc::Matrix::set_block_fn(curlProjMat.mat(), ADD_VALUES), *projForm, {});
         MatAssemblyBegin(curlProjMat.mat(), MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(curlProjMat.mat(), MAT_FINAL_ASSEMBLY);
 
         // assemble evaluation matrix and get diagonal
         std::shared_ptr<varForm<T>> evalForm = std::make_shared<varForm<T>>(dolfinx::fem::create_form<T>(
             *form_curl_evaluation_a, {quadFS, quadFS}, {{"dummy",std::shared_ptr<const dolfinxFunction<T>>()}}, {}, {}, {}));
-        dolfinxMatrix curlEvalMat = dolfinx::la::petsc::Matrix(dolfinx::fem::petsc::create_matrix(*evalForm), false);
+        dolfinxMatrix curlEvalMat = dolfinx::la::petsc::Matrix(dolfinx::fem::petsc::create_matrix(*evalForm), false); 
         MatZeroEntries(curlEvalMat.mat());
-        fem::assemble_matrix(la::petsc::Matrix::set_block_fn(curlEvalMat.mat(), ADD_VALUES), *evalForm, {});
+        dolfinx::fem::assemble_matrix(dolfinx::la::petsc::Matrix::set_block_fn(curlEvalMat.mat(), ADD_VALUES), *evalForm, {});
         MatAssemblyBegin(curlEvalMat.mat(), MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(curlEvalMat.mat(), MAT_FINAL_ASSEMBLY);                                   
         
         MatGetDiagonal(curlEvalMat.mat(), this->quadDiagVec.vec());
-        for (std::size_t i = 0; i< quadDiag.x()->mutable_array().size(); i++){
-            quadDiag.x()->mutable_array()[i]=1/quadDiag.x()->mutable_array()[i];
+        for (std::size_t i = 0; i< quadDiag.x()->array().size(); i++){
+            quadDiag.x()->array()[i]=1/quadDiag.x()->array()[i];
         }
     }
     #else

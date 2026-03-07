@@ -21,7 +21,7 @@ namespace mag_tools{
         protected:
         const std::shared_ptr<const varForm<T>> a;
         const std::shared_ptr<const varForm<T>> L;
-        const std::vector<std::shared_ptr<const dolfinxDirichletBC<T>>> bc;        
+        const std::shared_ptr<std::vector<dolfinx::fem::DirichletBC<T>>> bc;   
 
         const std::shared_ptr<dolfinxFunction<T>> solFunc;
 
@@ -35,8 +35,8 @@ namespace mag_tools{
         dolfinxLinearSolver linearSolver = dolfinxLinearSolver(MPI_COMM_WORLD);   
         
         dolfinxMatrix A = dolfinx::la::petsc::Matrix(dolfinx::fem::petsc::create_matrix(*a), false);
-        dolfinxVector x = dolfinxVector(la::petsc::create_vector_wrap(*solFunc->x()), false); 
-        dolfinxVector y = dolfinxVector(la::petsc::create_vector_wrap(yForm), false); 
+        dolfinxVector x = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(*solFunc->x()), false); 
+        dolfinxVector y = dolfinxVector(dolfinx::la::petsc::create_vector_wrap(yForm), false); 
 
         bool mpcPresent = false;
         int idxMaster;
@@ -51,7 +51,7 @@ namespace mag_tools{
         constrained_solver(
             const std::shared_ptr<const varForm<T>>& aIn, 
             const std::shared_ptr<const varForm<T>>& LIn, 
-            const std::vector<std::shared_ptr<const dolfinxDirichletBC<T>>>& bcIn,  
+            const std::shared_ptr<std::vector<dolfinx::fem::DirichletBC<T>>>& bcIn,  
             const std::shared_ptr<dolfinxFunction<T>>& solFuncIn,
             const std::shared_ptr<const dolfinx::mesh::MeshTags<int32_t>> meshMarkersIn):
             a(aIn), L(LIn), bc(bcIn), solFunc(solFuncIn), meshMarkers(meshMarkersIn)
@@ -93,28 +93,50 @@ namespace mag_tools{
             if (this->mpcPresent){
                 A = dolfinx_mpc::create_matrix(*a, mpc);
             }         
+
+            // build vector of reference_wrappers for the DirichletBCs to match assembler overload
+
+
+
             
             
             MatZeroEntries(A.mat());  
 
-            if (this->mpcPresent){         
-                dolfinx_mpc::assemble_matrix (
-                                la::petsc::Matrix::set_block_fn(A.mat(), ADD_VALUES),
-                                dolfinx::la::petsc::Matrix::set_fn(A.mat(), ADD_VALUES),
-                                *a,mpc, mpc, bc);
-                mpc->function_space();
+            if (this->mpcPresent){    
+                using BC_element_t = dolfinx::fem::DirichletBC<T>;
+                std::vector<std::shared_ptr<const BC_element_t>> bc_refs;
+                bc_refs.reserve(bc->size());
+                for (auto &d : *bc)
+                    bc_refs.emplace_back(std::make_shared<const BC_element_t>(d));  
+                dolfinx_mpc::assemble_matrix(
+                    dolfinx::la::petsc::Matrix::set_block_fn(A.mat(), ADD_VALUES),
+                    dolfinx::la::petsc::Matrix::set_fn(A.mat(), ADD_VALUES),*a, 
+                    mpc, 
+                    mpc,
+                    bc_refs);
             }
             else{
-                 dolfinx::fem::assemble_matrix(la::petsc::Matrix::set_block_fn(A.mat(), ADD_VALUES),
-                        *a, bc);
+                using BC_element_t = std::remove_reference_t<decltype((*bc)[0])>;
+                std::vector<std::reference_wrapper<const BC_element_t>> bc_refs;
+                bc_refs.reserve(bc->size());
+                for (auto &d : *bc)
+                    bc_refs.emplace_back(std::cref(d));
+                dolfinx::fem::assemble_matrix(dolfinx::la::petsc::Matrix::set_block_fn(A.mat(), ADD_VALUES),
+                        *a, bc_refs);
             }
 
             MatAssemblyBegin(A.mat(), MAT_FLUSH_ASSEMBLY);
             MatAssemblyEnd(A.mat(), MAT_FLUSH_ASSEMBLY);
+
+            using BC_element_t = std::remove_reference_t<decltype((*bc)[0])>;
+                std::vector<std::reference_wrapper<const BC_element_t>> bc_refs;
+                bc_refs.reserve(bc->size());
+                for (auto &d : *bc)
+                    bc_refs.emplace_back(std::cref(d));
                     
             dolfinx::fem::set_diagonal<T>(dolfinx::la::petsc::Matrix::set_fn(A.mat(), INSERT_VALUES), 
                             *(a->function_spaces()[0]),
-                            bc);
+                            bc_refs);
             MatAssemblyBegin(A.mat(), MAT_FINAL_ASSEMBLY);
             MatAssemblyEnd(A.mat(), MAT_FINAL_ASSEMBLY);
         }
@@ -138,7 +160,7 @@ namespace mag_tools{
             this->linearSolver.solve(this->x.vec(), this->y.vec());
 
             if (mpcPresent){
-                mpc->backsubstitution(this->solFunc->x()->mutable_array());
+                mpc->backsubstitution(this->solFunc->x()->array());
             }
 
         }
@@ -146,19 +168,40 @@ namespace mag_tools{
 
         protected:
         void assemble_rhs_internally(const std::shared_ptr<const varForm<T>>& formIn){
-            yForm.set(0.0);
+            std::ranges::fill(yForm.array(), 0.0);
+
+            // build vector of reference_wrappers for the DirichletBCs to match assembler overload
 
             if (this->mpcPresent == true){
-                dolfinx_mpc::assemble_vector(yForm.mutable_array(), *formIn, mpc);  
-                dolfinx_mpc::apply_lifting(yForm.mutable_array(), {this->a}, {this->bc}, {}, T(1.0), mpc);
+                using BC_element_t = dolfinx::fem::DirichletBC<T>;
+                std::vector<std::shared_ptr<const BC_element_t>> bc_refs;
+                bc_refs.reserve(bc->size());
+                for (auto &d : *bc)
+                    bc_refs.emplace_back(std::make_shared<const BC_element_t>(d));  
+                dolfinx_mpc::assemble_vector(yForm.array(), *formIn, mpc);  
+                dolfinx_mpc::apply_lifting(yForm.array(), {this->a}, {bc_refs}, {}, T(1.0), mpc);
             }
             else{
-                dolfinx::fem::assemble_vector(yForm.mutable_array(), *formIn);  
-                dolfinx::fem::apply_lifting<T,U<T>>(yForm.mutable_array(), {this->a}, {this->bc}, {}, T(1.0));
+
+                using BC_element_t = std::remove_reference_t<decltype((*bc)[0])>;
+                std::vector<std::reference_wrapper<const BC_element_t>> bc_refs = {};
+                bc_refs.reserve(bc->size());
+                for (auto &d : *bc){
+                    bc_refs.emplace_back(std::cref(d));
+                }
+                
+                std::ranges::fill(yForm.array(), 0.0);
+                dolfinx::fem::assemble_vector(yForm.array(), *formIn);
+
+                dolfinx::fem::apply_lifting(yForm.array(), {*this->a}, {bc_refs}, std::vector<std::span<const T>>{}, T(1.0));
+                yForm.scatter_rev(std::plus<T>());
+
             }          
             
-            yForm.scatter_rev(std::plus<T>());
-            dolfinx::fem::petsc::set_bc<T>(this->y.vec(), this->bc, nullptr);        
+            for (auto &d : *bc)
+                d.set(yForm.array(), std::nullopt, T(1.0));
+                
+            yForm.scatter_fwd(); // new addition   
         }
 
 
