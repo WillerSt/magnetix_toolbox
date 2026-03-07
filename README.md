@@ -131,6 +131,7 @@ If you prefer to build manually:
 
 
 ## TEAM Problem 32
+<img width="1920" height="1080" alt="Figure_3" src="https://github.com/user-attachments/assets/149ff928-cdb0-4540-942d-cc3b1e85a036" />
 
 1.  **(Optional)** Generate custom input XML for the example
 
@@ -147,9 +148,12 @@ If you prefer to build manually:
 3.  All results are found in a time-stamped results directory. 
     If using default inputs: *TEAM_Problem_32_case3_default_<DATE>/results/*
     
-    The fields can be viewed e.g. with Paraview. Evaluate flux density at the query points using (remember that **install/fenicsx_magnetics_toolbox-0.10/python** must be on your **PYTHONPATH**)
+    The fields can be viewed e.g. with Paraview. Evaluate flux density at the query points using (remember that *install/fenicsx_magnetics_toolbox-0.10/python* must be on your *PYTHONPATH*)
 
         python3 evalFieldQuery.py TEAM_Problem_32_case3_default_<DATE>/results/results.xml
+
+<img width="640" height="480" alt="Figure_2" src="https://github.com/user-attachments/assets/6564265d-1d29-42a3-8b64-bc12b22b66ab" />
+<img width="640" height="480" alt="Figure_1" src="https://github.com/user-attachments/assets/312229be-0d8b-4a47-b81d-10fe21b292f1" />
 
 # Third party contributions
 ## tinyXML2
