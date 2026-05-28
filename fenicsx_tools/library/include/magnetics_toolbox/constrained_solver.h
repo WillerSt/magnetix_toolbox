@@ -77,6 +77,7 @@ namespace mag_tools{
             if (this->mpcPresent){
                 //this->mpc = std::make_shared<dolfinx_mpc::MultiPointConstraint<T,U<T>>> (dolfinx_mpc::MultiPointConstraint<T,U<T>>((a->function_spaces()[0]),{},{},{},{},{}));
                 this->mpcInput = std::make_shared<dolfinx_mpc::mpc_data<T>>(dolfinx_mpc::create_contact_inelastic_condition<T,U<T>>(*solFunc->function_space(), *meshMarkers, idxSlave, idxMaster, tol));
+                
                 this->mpc = std::make_shared<dolfinx_mpc::MultiPointConstraint<T,U<T>>> ( dolfinx_mpc::MultiPointConstraint<T,U<T>>(
                     solFunc->function_space(),
                     mpcInput->slaves,

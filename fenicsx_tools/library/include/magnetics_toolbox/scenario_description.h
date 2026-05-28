@@ -193,8 +193,8 @@ namespace mag_tools{
             meshInput(get_mesh_input()), 
             materialInput(get_entitiy_group(DEFINE_MATERIAL_DEFINITION)), 
             sourceInput(get_entitiy_group(DEFINE_SOURCE_DEFINITION)), 
-            solverInput(get_entitiy_group(DEFINE_SOLVER_PARAMETERS)[0]),
-            timeStepping(get_entitiy_group(DEFINE_TIME_STEPPING)[0]),
+            solverInput(get_single_entity(DEFINE_SOLVER_PARAMETERS)),
+            timeStepping(get_single_entity(DEFINE_TIME_STEPPING)),
             boundaryDef(get_entitiy_group(DEFINE_BOUNDARY_DEFINTIION)),
             forceCalc(get_entitiy_group(DEFINE_FORCE_CALCULATION)),
             movingDomains(get_entitiy_group(DEFINE_MOVING_DOMAIN)),
@@ -231,6 +231,22 @@ namespace mag_tools{
 
                 }
                 return entityVec;
+
+            }
+
+            scen::xml_model_entity get_single_entity(const std::string& groupName){
+                auto vecCand = get_entitiy_group(groupName);
+                if (vecCand.size() > 1){
+                    std::cout << "Warning: More than one entity found for group " << groupName << std::endl;
+                    return vecCand.front();
+                }
+                else if (vecCand.empty()){
+                    std::cout << "Warning: No entity found for group " << groupName << ", returning dummy entity\n";
+                    return scen::xml_model_entity("dummy_"+groupName);
+                }
+                else{
+                    return vecCand.front();
+                }
 
             }
 

@@ -72,7 +72,7 @@ namespace mag_tools{
             basix::element::dpc_variant::unset, true);        
 
         const auto dgVecFS = std::make_shared<dolfinx::fem::FunctionSpace<U<T>>>(dolfinx::fem::create_functionspace<U<T>>(
-            mesh, std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(dg1Elemem, std::vector<size_t>({dimG,1}))));
+            mesh, std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(dg1Elemem, std::vector<size_t>({dimG}))));
         const auto dgScaFS = std::make_shared<dolfinx::fem::FunctionSpace<T>>(dolfinx::fem::create_functionspace<U<T>>(mesh, 
             std::make_shared<const dolfinx::fem::FiniteElement<U<T>>>(dg1Elemem)));      
 
@@ -93,8 +93,8 @@ namespace mag_tools{
         const auto A  = std::make_shared<dolfinxFunction<T>>(cgScaFS);  // z-comp. vector potential
         const auto A_delta = std::make_shared<dolfinxFunction<T>>(cgScaFS); // z-comp. vector potential update
 
-        const auto zeroCG = mag_tools::create_const_function<T>(cgScaFS,T(0.0)); // auxilliary vector to calculate resitual
-        const auto zeroQuad  = mag_tools::create_const_function<T>(quadVecFS, T(0.0)); // auxilliary vector to calculate resitual
+        const auto zeroCG = mag_tools::create_const_function<T>(cgScaFS,T(0.0)); // auxilliary vector to calculate residual
+        const auto zeroQuad  = mag_tools::create_const_function<T>(quadVecFS, T(0.0)); // auxilliary vector to calculate residual
 
         // initialize values (to be on the safe side)
         std::ranges::fill(M->x()->array(), 0.0);
